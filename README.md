@@ -2,6 +2,8 @@
 
 This is a robust, structured Arduino library for the Alphasense OPC-N3 optical particle counter, designed for use with the Platform.io IDE. It provides a clean, high-level interface for initializing the sensor, reading particle data, and configuring key parameters. The library is built with a focus on reliability, implementing retry logic and error handling as recommended by the official datasheets.
 
+The library automatically transfers all measurements to InfluxDB via WiFi connection, enabling seamless data logging and monitoring. This integration allows for real-time data visualization and analysis through platforms like Grafana.
+
 ## Features
 
 - **Structured Code**: The logic is encapsulated in an `OpcN3` class, keeping your `main.cpp` clean and simple.
