@@ -167,8 +167,4 @@ void loop()
     // Wait for recovery on failure
     delay(2500);
   }
-
-  // Wait for the next measurement cycle
-  // The delay here should be longer than the set sampling period
-  delay(5000);
 }
