@@ -193,16 +193,12 @@ This struct holds all the values read from the sensor.
     - The first data set after power-on or an error should be discarded, as per the datasheet. This library handles the communication, but your application logic might need to account for this initial reading.
     - High humidity (>85% RH) can affect readings, causing particles to appear larger. This is a physical property of aerosols, not a sensor fault.
 
-## Upcoming Features
-
-### InfluxDB Integration
-The library will soon be extended with InfluxDB integration. This will enable:
-- Storage of particle measurements in a time-series database
-- Long-term analysis of air quality data
-- Easy visualization using tools like Grafana
-- Efficient handling of large data volumes
-
-The configuration files have already been prepared to support this integration.
+## InfluxDB Integration
+The example project writes all sensor data directly to an InfluxDB instance.
+In addition to the PM values and environmental measurements, the individual
+particle bin counts are stored as separate fields (`bin_00` to `bin_15`). This
+allows detailed analysis and visualization of the histogram data in tools like
+Grafana.
 
 ## License
 
