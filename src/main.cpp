@@ -3,7 +3,7 @@
 #include <WiFi.h>
 #include <InfluxDbClient.h>
 #include <InfluxDbCloud.h>
-#include "OpcN3.h" // Include our new OPC-N3 library
+#include "OpcN3.h"
 #include "config.h"
 
 // --- Pin Configuration ---
@@ -11,6 +11,9 @@ const int OPC_MOSI_PIN = 23;
 const int OPC_MISO_PIN = 19;
 const int OPC_SCK_PIN = 18;
 const int OPC_SS_PIN = 5;
+
+// --- Sampling Period Configuration ---
+float samplingPeriod = 1.0;
 
 // --- Global Objects ---
 OpcN3 opc(OPC_SS_PIN);
@@ -22,7 +25,7 @@ const int MAX_CONSECUTIVE_FAILURES = 5;
 #define DEVICE "ARDUINO"
 #endif
 
-InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN);
+InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
 Point sensorPoint("opc_n3");
 
 void setup()
@@ -48,8 +51,6 @@ void setup()
 
   // Prepare InfluxDB client
   client.setWriteOptions(WriteOptions().writePrecision(WritePrecision::S));
-  sensorPoint.addTag("device", DEVICE);
-  sensorPoint.addTag("ssid", WiFi.SSID());
 
   if (client.validateConnection())
   {
@@ -72,6 +73,11 @@ void setup()
     Serial.println("FATAL: OPC-N3 initialization failed. Program halted.");
     while (1)
       ; // Halt execution
+  }
+
+  if (!opc.setSamplingPeriod(samplingPeriod))
+  {
+    Serial.println("Warning: Failed to set custom sampling period");
   }
 }
 
