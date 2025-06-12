@@ -51,6 +51,8 @@ void setup()
 
   // Prepare InfluxDB client
   client.setWriteOptions(WriteOptions().writePrecision(WritePrecision::S));
+  sensorPoint.addTag("device", DEVICE);
+  sensorPoint.addTag("ssid", WiFi.SSID());
 
   if (client.validateConnection())
   {
