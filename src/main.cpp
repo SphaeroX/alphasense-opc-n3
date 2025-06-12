@@ -118,6 +118,15 @@ void loop()
     sensorPoint.addField("pm10", sensorData.pm_c);
     sensorPoint.addField("temperature", sensorData.temperature_c);
     sensorPoint.addField("humidity", sensorData.humidity_rh);
+
+    // Add individual bin counts as separate fields for detailed analysis
+    for (int i = 0; i < 16; i++)
+    {
+      char fieldName[8];
+      snprintf(fieldName, sizeof(fieldName), "bin_%02d", i);
+      sensorPoint.addField(fieldName, (int)sensorData.bin_counts[i]);
+    }
+
     sensorPoint.setTime();
 
     Serial.print("Writing to InfluxDB: ");
