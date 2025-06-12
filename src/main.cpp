@@ -86,6 +86,7 @@ void setup()
 void loop()
 {
   static int consecutive_failures = 0;
+  static bool discard_next_success = true; // discard first valid reading
 
   Serial.println("\n--- Requesting New Measurement ---");
 
@@ -93,59 +94,69 @@ void loop()
   if (opc.readData(sensorData))
   {
     consecutive_failures = 0; // Reset counter on success
-    Serial.println("Data successfully read and validated.");
-    Serial.printf("Temperature: %.2f C\n", sensorData.temperature_c);
-    Serial.printf("Humidity: %.2f %%RH\n", sensorData.humidity_rh);
-    Serial.printf("PM1: %.2f ug/m3\n", sensorData.pm_a);
-    Serial.printf("PM2.5: %.2f ug/m3\n", sensorData.pm_b);
-    Serial.printf("PM10: %.2f ug/m3\n", sensorData.pm_c);
-    Serial.printf("Actual Sampling Period: %.2f s\n", sensorData.sampling_period_s); // Verify the period
-    Serial.printf("Checksum: OK (Received: 0x%04X)\n", sensorData.received_checksum);
 
-    // Print the individual bin counts with their size ranges
-    Serial.println("\nParticle Size Bin Counts:");
-    for (int i = 0; i < 16; i++)
+    if (discard_next_success)
     {
-      Serial.printf("  Bin %2d (%.2f - %.2f um): %u counts\n",
-                    i,
-                    sensorData.bin_boundaries_um[i],
-                    sensorData.bin_boundaries_um[i + 1],
-                    sensorData.bin_counts[i]);
+      Serial.println("First valid measurement discarded as per datasheet recommendation.");
+      discard_next_success = false;
     }
-
-    // Prepare InfluxDB point
-    sensorPoint.clearFields();
-    sensorPoint.addField("pm1", sensorData.pm_a);
-    sensorPoint.addField("pm2_5", sensorData.pm_b);
-    sensorPoint.addField("pm10", sensorData.pm_c);
-    sensorPoint.addField("temperature", sensorData.temperature_c);
-    sensorPoint.addField("humidity", sensorData.humidity_rh);
-
-    // Add individual bin counts as separate fields for detailed analysis
-    for (int i = 0; i < 16; i++)
+    else
     {
-      char fieldName[8];
-      snprintf(fieldName, sizeof(fieldName), "bin_%02d", i);
-      sensorPoint.addField(fieldName, (int)sensorData.bin_counts[i]);
-    }
+      Serial.println("Data successfully read and validated.");
+      Serial.printf("Temperature: %.2f C\n", sensorData.temperature_c);
+      Serial.printf("Humidity: %.2f %%RH\n", sensorData.humidity_rh);
+      Serial.printf("PM1: %.2f ug/m3\n", sensorData.pm_a);
+      Serial.printf("PM2.5: %.2f ug/m3\n", sensorData.pm_b);
+      Serial.printf("PM10: %.2f ug/m3\n", sensorData.pm_c);
+      Serial.printf("Actual Sampling Period: %.2f s\n", sensorData.sampling_period_s); // Verify the period
+      Serial.printf("Checksum: OK (Received: 0x%04X)\n", sensorData.received_checksum);
 
-    sensorPoint.setTime();
+      // Print the individual bin counts with their size ranges
+      Serial.println("\nParticle Size Bin Counts:");
+      for (int i = 0; i < 16; i++)
+      {
+        Serial.printf("  Bin %2d (%.2f - %.2f um): %u counts\n",
+                      i,
+                      sensorData.bin_boundaries_um[i],
+                      sensorData.bin_boundaries_um[i + 1],
+                      sensorData.bin_counts[i]);
+      }
 
-    Serial.print("Writing to InfluxDB: ");
-    Serial.println(client.pointToLineProtocol(sensorPoint));
-    if (WiFi.status() != WL_CONNECTED)
-    {
-      Serial.println("WiFi connection lost");
-    }
-    if (!client.writePoint(sensorPoint))
-    {
-      Serial.print("InfluxDB write failed: ");
-      Serial.println(client.getLastErrorMessage());
+      // Prepare InfluxDB point
+      sensorPoint.clearFields();
+      sensorPoint.addField("pm1", sensorData.pm_a);
+      sensorPoint.addField("pm2_5", sensorData.pm_b);
+      sensorPoint.addField("pm10", sensorData.pm_c);
+      sensorPoint.addField("temperature", sensorData.temperature_c);
+      sensorPoint.addField("humidity", sensorData.humidity_rh);
+
+      // Add individual bin counts as separate fields for detailed analysis
+      for (int i = 0; i < 16; i++)
+      {
+        char fieldName[8];
+        snprintf(fieldName, sizeof(fieldName), "bin_%02d", i);
+        sensorPoint.addField(fieldName, (int)sensorData.bin_counts[i]);
+      }
+
+      sensorPoint.setTime();
+
+      Serial.print("Writing to InfluxDB: ");
+      Serial.println(client.pointToLineProtocol(sensorPoint));
+      if (WiFi.status() != WL_CONNECTED)
+      {
+        Serial.println("WiFi connection lost");
+      }
+      if (!client.writePoint(sensorPoint))
+      {
+        Serial.print("InfluxDB write failed: ");
+        Serial.println(client.getLastErrorMessage());
+      }
     }
   }
   else
   {
     consecutive_failures++;
+    discard_next_success = true; // discard next successful measurement after a failure
     Serial.printf("Measurement failed. This is failure #%d in a row.\n", consecutive_failures);
 
     if (consecutive_failures >= MAX_CONSECUTIVE_FAILURES)
