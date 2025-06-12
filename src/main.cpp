@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include "OpcN3.h" // Include our new OPC-N3 library
+#include <WiFi.h>
+#include <InfluxDbClient.h>
+#include <InfluxDbCloud.h>
+#include "OpcN3.h"
+#include "config.h"
 
 // --- Pin Configuration ---
 const int OPC_MOSI_PIN = 23;
@@ -8,9 +12,21 @@ const int OPC_MISO_PIN = 19;
 const int OPC_SCK_PIN = 18;
 const int OPC_SS_PIN = 5;
 
+// --- Sampling Period Configuration ---
+float samplingPeriod = 1.0;
+
 // --- Global Objects ---
 OpcN3 opc(OPC_SS_PIN);
 const int MAX_CONSECUTIVE_FAILURES = 5;
+
+#if defined(ESP32)
+#define DEVICE "ESP32"
+#else
+#define DEVICE "ARDUINO"
+#endif
+
+InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
+Point sensorPoint("opc_n3");
 
 void setup()
 {
@@ -18,6 +34,34 @@ void setup()
   while (!Serial)
     ;
   Serial.println("\n\nOPC-N3 Sensor Reader - Structured Version");
+
+  // Connect to WiFi
+  Serial.printf("Connecting to WiFi '%s'", WIFI_SSID);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println(" connected");
+
+  // Synchronize time for accurate timestamps
+  timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
+
+  // Prepare InfluxDB client
+  client.setWriteOptions(WriteOptions().writePrecision(WritePrecision::S));
+
+  if (client.validateConnection())
+  {
+    Serial.print("Connected to InfluxDB: ");
+    Serial.println(client.getServerUrl());
+  }
+  else
+  {
+    Serial.print("InfluxDB connection failed: ");
+    Serial.println(client.getLastErrorMessage());
+  }
 
   // Initialize SPI bus
   SPI.begin(OPC_SCK_PIN, OPC_MISO_PIN, OPC_MOSI_PIN, OPC_SS_PIN);
@@ -29,6 +73,11 @@ void setup()
     Serial.println("FATAL: OPC-N3 initialization failed. Program halted.");
     while (1)
       ; // Halt execution
+  }
+
+  if (!opc.setSamplingPeriod(samplingPeriod))
+  {
+    Serial.println("Warning: Failed to set custom sampling period");
   }
 }
 
@@ -60,6 +109,27 @@ void loop()
                     sensorData.bin_boundaries_um[i],
                     sensorData.bin_boundaries_um[i + 1],
                     sensorData.bin_counts[i]);
+    }
+
+    // Prepare InfluxDB point
+    sensorPoint.clearFields();
+    sensorPoint.addField("pm1", sensorData.pm_a);
+    sensorPoint.addField("pm2_5", sensorData.pm_b);
+    sensorPoint.addField("pm10", sensorData.pm_c);
+    sensorPoint.addField("temperature", sensorData.temperature_c);
+    sensorPoint.addField("humidity", sensorData.humidity_rh);
+    sensorPoint.setTime();
+
+    Serial.print("Writing to InfluxDB: ");
+    Serial.println(client.pointToLineProtocol(sensorPoint));
+    if (WiFi.status() != WL_CONNECTED)
+    {
+      Serial.println("WiFi connection lost");
+    }
+    if (!client.writePoint(sensorPoint))
+    {
+      Serial.print("InfluxDB write failed: ");
+      Serial.println(client.getLastErrorMessage());
     }
   }
   else
