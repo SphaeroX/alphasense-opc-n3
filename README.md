@@ -25,42 +25,6 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
 - A microcontroller compatible with Arduino (e.g., ESP32, ESP8266, Arduino Uno).
 - An SPI interface connection between the microcontroller and the OPC-N3.
 
-### Default Pinout
-
-The library is configured for the following pins, which can be changed in `main.cpp`:
-
-| Function | Microcontroller Pin | OPC-N3 Pin |
-| :------- | :------------------ | :--------- |
-| MOSI     | `23`                | SDI        |
-| MISO     | `19`                | SDO        |
-| SCK      | `18`                | SCK        |
-| SS (CS)  | `5`                 | /SS        |
-
-## Installation with Platform.io
-
-1.  **Clone or Download**: Clone this repository or download it as a ZIP file into your Platform.io project's directory.
-2.  **File Structure**: Place the library files directly into your project's `src` folder. Your `src` directory should look like this:
-
-    ```
-    my-project/
-    ├── platformio.ini
-    ├── src/
-    │   ├── OpcN3.h
-    │   ├── OpcN3.cpp
-    │   └── main.cpp
-    └── ... other project files
-    ```
-
-3.  **Platform.io Configuration**: Ensure your `platformio.ini` is set up for your board. No external library dependencies are required, as SPI is part of the Arduino framework.
-
-    ```ini
-    [env:esp32dev]
-    platform = espressif32
-    board = esp32dev
-    framework = arduino
-    monitor_speed = 115200
-    ```
-
 ## Quickstart Example
 
 The following example shows how to initialize the sensor and continuously read data.
