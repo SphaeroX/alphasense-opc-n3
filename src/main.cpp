@@ -86,8 +86,8 @@ void setup()
   SPI.begin(OPC_SCK_PIN, OPC_MISO_PIN, OPC_MOSI_PIN, OPC_SS_PIN);
 
   // Initialize I2C bus for the SCD41 gas sensor
-  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
-  scd4x.begin(Wire, SCD41_ADDR);
+  Wire.begin();
+  scd4x.begin(Wire, SCD41_I2C_ADDR_62);
   scd4x.wakeUp();
   scd4x.stopPeriodicMeasurement();
   scd4x.reinit();
@@ -171,7 +171,7 @@ void loop()
 
       // Print the individual bin counts with their size ranges
       Serial.println("\nParticle Size Bin Counts:");
-      for (int i = 0; i < 16; i++)
+      for (int i = 0; i < 24; i++)
       {
         Serial.printf("  Bin %2d (%.2f - %.2f um): %u counts\n",
                       i,
@@ -192,7 +192,7 @@ void loop()
       sensorPoint.addField("scd_humidity", scdHumidity);
 
       // Add individual bin counts as separate fields for detailed analysis
-      for (int i = 0; i < 16; i++)
+      for (int i = 0; i < 24; i++)
       {
         char fieldName[8];
         snprintf(fieldName, sizeof(fieldName), "bin_%02d", i);
