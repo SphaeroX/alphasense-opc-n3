@@ -258,6 +258,14 @@ bool OpcN3::writeConfiguration()
         delayMicroseconds(DELAY_INTER_BYTE_US);
         SPI.transfer(_config_vars[i]); // Write each byte from our buffer
     }
+
+    // Send CRC16 over the transmitted configuration block
+    uint16_t crc = crc16_calc(_config_vars, 168);
+    delayMicroseconds(DELAY_INTER_BYTE_US);
+    SPI.transfer(crc & 0xFF);       // CRC LSB
+    delayMicroseconds(DELAY_INTER_BYTE_US);
+    SPI.transfer((crc >> 8) & 0xFF); // CRC MSB
+
     digitalWrite(_ss_pin, HIGH);
 
     // Give the sensor a moment to process the received configuration bytes
