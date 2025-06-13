@@ -100,6 +100,38 @@ This struct holds all the values read from the sensor.
 | `reject_count_long_tof` | `uint16_t`     | Count of particles rejected for taking too long to cross the laser.      |
 | `reject_count_ratio`    | `uint16_t`     | Count of particles rejected based on internal validation ratios.         |
 
+### Particle Size Bins
+
+The OPC-N3 sensor reports 24 histogram bins describing the particle size
+distribution. The table below lists the approximate diameter range for each bin.
+
+| Bin # | Particle size (µm) |
+| :---: | :----------------- |
+| 1 | 0.350 – 0.460 |
+| 2 | 0.460 – 0.660 |
+| 3 | 0.660 – 1.000 |
+| 4 | 1.000 – 1.300 |
+| 5 | 1.300 – 1.700 |
+| 6 | 1.700 – 2.300 |
+| 7 | 2.300 – 3.000 |
+| 8 | 3.000 – 4.000 |
+| 9 | 4.000 – 5.000 |
+| 10 | 5.000 – 6.500 |
+| 11 | 6.500 – 8.000 |
+| 12 | 8.000 – 10.000 |
+| 13 | 10.000 – 12.000 |
+| 14 | 12.000 – 14.000 |
+| 15 | 14.000 – 16.000 |
+| 16 | 16.000 – 18.000 |
+| 17 | 18.000 – 20.000 |
+| 18 | 20.000 – 22.000 |
+| 19 | 22.000 – 25.000 |
+| 20 | 25.000 – 28.000 |
+| 21 | 28.000 – 31.000 |
+| 22 | 31.000 – 34.000 |
+| 23 | 34.000 – 37.000 |
+| 24 | 37.000 – 40.000 |
+
 ## Troubleshooting
 
 - **No Connection / Initialization Fails**:
