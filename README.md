@@ -17,6 +17,10 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
     - Actual sampling period and sample flow rate.
     - Status information like laser status and reject counts.
 - **Configurable Sampling Period**: Allows you to programmatically set the sensor's sampling period.
+- **Adjustable Measurement Sleep**: Configure how long the sensor waits between
+  readings so that it can collect data over extended periods (e.g., 60 seconds)
+  before transmission. The wait uses a non-blocking timer so your code can
+  perform other tasks.
 - **Clear Serial Output**: Provides detailed, human-readable logs for initialization, measurements, and error conditions.
 
 ## Hardware Requirements
@@ -30,6 +34,8 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
 Getting started with this library is straightforward:
 
 1. Copy `include/config.h.example` to `include/config.h` and update it with your WiFi and InfluxDB credentials
+   (you can also adjust `SENSOR_SLEEP_MS` here to set the non-blocking interval
+   between readings)
 2. Flash the code to your ESP32
 3. The device will:
     - Automatically connect to your WiFi network
