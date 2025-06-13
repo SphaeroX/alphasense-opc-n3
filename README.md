@@ -22,12 +22,14 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
   before transmission. The wait uses a non-blocking timer so your code can
   perform other tasks.
 - **Clear Serial Output**: Provides detailed, human-readable logs for initialization, measurements, and error conditions.
+- **Integrated CO₂ Measurements**: Reads CO₂ concentration, temperature, and humidity from an attached SCD41 sensor via I²C.
 
 ## Hardware Requirements
 
 - An Alphasense OPC-N3 sensor.
 - A microcontroller compatible with Arduino (e.g., ESP32, ESP8266, Arduino Uno).
 - An SPI interface connection between the microcontroller and the OPC-N3.
+- An SCD41 CO₂ sensor connected via the I²C bus.
 
 ## Quick Start
 
@@ -40,6 +42,7 @@ Getting started with this library is straightforward:
 3. The device will:
     - Automatically connect to your WiFi network
     - Initialize the OPC-N3 sensor
+    - Initialize the SCD41 sensor and start periodic measurements
     - Start continuous measurements
     - Push all data directly to your InfluxDB instance
 
@@ -151,6 +154,8 @@ In addition to the PM values and environmental measurements, the individual
 particle bin counts are stored as separate fields (`bin_00` to `bin_23`). This
 allows detailed analysis and visualization of the histogram data in tools like
 Grafana.
+The CO₂, temperature, and humidity values measured by the SCD41 are also
+included in each InfluxDB point.
 
 ## License
 

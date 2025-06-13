@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <WiFi.h>
+#include <Wire.h>
+#include <SensirionI2cScd4x.h>
 #include <InfluxDbClient.h>
 #include <InfluxDbCloud.h>
 #include "OpcN3.h"
@@ -24,6 +26,7 @@ float samplingPeriod = measurementSleepMs / 1000.0f;
 
 // --- Global Objects ---
 OpcN3 opc(OPC_SS_PIN);
+SensirionI2cScd4x scd4x;
 const int MAX_CONSECUTIVE_FAILURES = 5;
 
 #if defined(ESP32)
@@ -75,6 +78,14 @@ void setup()
   // Initialize SPI bus
   SPI.begin(OPC_SCK_PIN, OPC_MISO_PIN, OPC_MOSI_PIN, OPC_SS_PIN);
 
+  // Initialize I2C bus for the SCD41 gas sensor
+  Wire.begin();
+  scd4x.begin(Wire, SCD41_I2C_ADDR_62);
+  scd4x.wakeUp();
+  scd4x.stopPeriodicMeasurement();
+  scd4x.reinit();
+  scd4x.startPeriodicMeasurement();
+
   // Initialize the OPC-N3 sensor
   // This now includes setting the default sampling period to 1 second
   if (!opc.begin())
@@ -120,6 +131,31 @@ void loop()
       Serial.println("Data successfully read and validated.");
       Serial.printf("Temperature: %.2f C\n", sensorData.temperature_c);
       Serial.printf("Humidity: %.2f %%RH\n", sensorData.humidity_rh);
+
+      // Read SCD41 gas sensor values
+      bool scdReady = false;
+      uint16_t co2 = 0;
+      float scdTemperature = 0.0f;
+      float scdHumidity = 0.0f;
+      int16_t scdError = scd4x.getDataReadyStatus(scdReady);
+      if (scdError == 0 && scdReady)
+      {
+        scdError = scd4x.readMeasurement(co2, scdTemperature, scdHumidity);
+        if (scdError == 0)
+        {
+          Serial.printf("CO2: %u ppm\n", co2);
+          Serial.printf("SCD Temperature: %.2f C\n", scdTemperature);
+          Serial.printf("SCD Humidity: %.2f %%RH\n", scdHumidity);
+        }
+        else
+        {
+          Serial.println("Error reading SCD41 measurement");
+        }
+      }
+      else if (scdError != 0)
+      {
+        Serial.println("Error checking SCD41 data ready status");
+      }
       Serial.printf("PM1: %.2f ug/m3\n", sensorData.pm_a);
       Serial.printf("PM2.5: %.2f ug/m3\n", sensorData.pm_b);
       Serial.printf("PM10: %.2f ug/m3\n", sensorData.pm_c);
@@ -144,6 +180,9 @@ void loop()
       sensorPoint.addField("pm10", sensorData.pm_c);
       sensorPoint.addField("temperature", sensorData.temperature_c);
       sensorPoint.addField("humidity", sensorData.humidity_rh);
+      sensorPoint.addField("co2", co2);
+      sensorPoint.addField("scd_temp", scdTemperature);
+      sensorPoint.addField("scd_humidity", scdHumidity);
 
       // Add individual bin counts as separate fields for detailed analysis
       for (int i = 0; i < 24; i++)
