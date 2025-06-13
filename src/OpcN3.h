@@ -8,7 +8,8 @@
 struct OpcN3Data
 {
     // Histogram Data
-    uint16_t bin_counts[16];
+    // The OPC-N3 reports 24 histogram bins
+    uint16_t bin_counts[24];
     float bin_boundaries_um[25];
 
     // MToF (Time-of-Flight for specific bins)

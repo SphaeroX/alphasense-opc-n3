@@ -128,7 +128,7 @@ void loop()
 
       // Print the individual bin counts with their size ranges
       Serial.println("\nParticle Size Bin Counts:");
-      for (int i = 0; i < 16; i++)
+      for (int i = 0; i < 24; i++)
       {
         Serial.printf("  Bin %2d (%.2f - %.2f um): %u counts\n",
                       i,
@@ -146,7 +146,7 @@ void loop()
       sensorPoint.addField("humidity", sensorData.humidity_rh);
 
       // Add individual bin counts as separate fields for detailed analysis
-      for (int i = 0; i < 16; i++)
+      for (int i = 0; i < 24; i++)
       {
         char fieldName[8];
         snprintf(fieldName, sizeof(fieldName), "bin_%02d", i);

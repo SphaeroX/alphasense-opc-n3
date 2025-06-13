@@ -12,7 +12,7 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
 - **Detailed Data Parsing**: Reads and parses the full histogram dataset, including:
     - PM1, PM2.5, and PM10 mass concentrations (in µg/m³).
     - Temperature (in °C) and Relative Humidity (in %RH).
-    - Particle counts for 16 distinct size bins.
+    - Particle counts for 24 distinct size bins.
     - Particle size boundaries for each bin (in µm).
     - Actual sampling period and sample flow rate.
     - Status information like laser status and reject counts.
@@ -83,7 +83,7 @@ This struct holds all the values read from the sensor.
 
 | Member                  | Type           | Description                                                              |
 | :---------------------- | :------------- | :----------------------------------------------------------------------- |
-| `bin_counts[16]`        | `uint16_t`     | Array containing the particle counts for each of the 16 main bins.       |
+| `bin_counts[24]`        | `uint16_t`     | Array containing the particle counts for each of the 24 histogram bins. |
 | `bin_boundaries_um[25]` | `float`        | Array of particle diameters (in µm) defining the edges of the 24 bins.   |
 | `pm_a`                  | `float`        | Mass concentration for PM size A (typically PM1) in µg/m³.               |
 | `pm_b`                  | `float`        | Mass concentration for PM size B (typically PM2.5) in µg/m³.             |
@@ -148,7 +148,7 @@ distribution. The table below lists the approximate diameter range for each bin.
 ## InfluxDB Integration
 The example project writes all sensor data directly to an InfluxDB instance.
 In addition to the PM values and environmental measurements, the individual
-particle bin counts are stored as separate fields (`bin_00` to `bin_15`). This
+particle bin counts are stored as separate fields (`bin_00` to `bin_23`). This
 allows detailed analysis and visualization of the histogram data in tools like
 Grafana.
 
