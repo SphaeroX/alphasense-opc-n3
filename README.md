@@ -53,8 +53,7 @@ Note: The complete working example is provided in the `main.cpp` file, which inc
 ## SCD41 Integration
 
 The SCD41 uses the I²C bus with address `0x62`. Connect its `SDA` pin to `GPIO 21` and
-`SCL` to `GPIO 22` on the ESP32 (or adjust `I2C_SDA_PIN` and `I2C_SCL_PIN` in
-`main.cpp`). Measurements from this sensor—CO₂, temperature and humidity—are
+`SCL` to `GPIO 22` on the ESP32. Measurements from this sensor—CO₂, temperature and humidity—are
 sent to InfluxDB alongside the OPC-N3 data.
 
 ## API Reference
