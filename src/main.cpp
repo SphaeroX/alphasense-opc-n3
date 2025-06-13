@@ -12,8 +12,15 @@ const int OPC_MISO_PIN = 19;
 const int OPC_SCK_PIN = 18;
 const int OPC_SS_PIN = 5;
 
-// --- Sampling Period Configuration ---
-float samplingPeriod = 1.0;
+// --- Sampling Period & Sleep Configuration ---
+// Duration to wait between sensor readings (in milliseconds). Adjust this to
+// control how long the OPC-N3 collects data before the next read. The waiting
+// mechanism is non-blocking so the MCU can perform other tasks.
+const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
+
+// The OPC-N3 sampling period should match the sleep duration so that each
+// reading contains data collected during the entire wait time.
+float samplingPeriod = measurementSleepMs / 1000.0f;
 
 // --- Global Objects ---
 OpcN3 opc(OPC_SS_PIN);
@@ -87,6 +94,14 @@ void loop()
 {
   static int consecutive_failures = 0;
   static bool discard_next_success = true; // discard first valid reading
+  static unsigned long lastMeasurementMs = 0;
+
+  unsigned long now = millis();
+  if (now - lastMeasurementMs < measurementSleepMs)
+  {
+    return; // wait until the next measurement interval without blocking
+  }
+  lastMeasurementMs = now;
 
   Serial.println("\n--- Requesting New Measurement ---");
 
@@ -167,4 +182,5 @@ void loop()
     // Wait for recovery on failure
     delay(2500);
   }
+
 }

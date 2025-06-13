@@ -17,6 +17,10 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
     - Actual sampling period and sample flow rate.
     - Status information like laser status and reject counts.
 - **Configurable Sampling Period**: Allows you to programmatically set the sensor's sampling period.
+- **Adjustable Measurement Sleep**: Configure how long the sensor waits between
+  readings so that it can collect data over extended periods (e.g., 60 seconds)
+  before transmission. The wait uses a non-blocking timer so your code can
+  perform other tasks.
 - **Clear Serial Output**: Provides detailed, human-readable logs for initialization, measurements, and error conditions.
 
 ## Hardware Requirements
@@ -30,6 +34,8 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
 Getting started with this library is straightforward:
 
 1. Copy `include/config.h.example` to `include/config.h` and update it with your WiFi and InfluxDB credentials
+   (you can also adjust `SENSOR_SLEEP_MS` here to set the non-blocking interval
+   between readings)
 2. Flash the code to your ESP32
 3. The device will:
     - Automatically connect to your WiFi network
@@ -93,6 +99,38 @@ This struct holds all the values read from the sensor.
 | `reject_count_glitch`   | `uint16_t`     | Count of particles rejected due to electronic noise.                     |
 | `reject_count_long_tof` | `uint16_t`     | Count of particles rejected for taking too long to cross the laser.      |
 | `reject_count_ratio`    | `uint16_t`     | Count of particles rejected based on internal validation ratios.         |
+
+### Particle Size Bins
+
+The OPC-N3 sensor reports 24 histogram bins describing the particle size
+distribution. The table below lists the approximate diameter range for each bin.
+
+| Bin # | Particle size (µm) |
+| :---: | :----------------- |
+| 1 | 0.350 – 0.460 |
+| 2 | 0.460 – 0.660 |
+| 3 | 0.660 – 1.000 |
+| 4 | 1.000 – 1.300 |
+| 5 | 1.300 – 1.700 |
+| 6 | 1.700 – 2.300 |
+| 7 | 2.300 – 3.000 |
+| 8 | 3.000 – 4.000 |
+| 9 | 4.000 – 5.000 |
+| 10 | 5.000 – 6.500 |
+| 11 | 6.500 – 8.000 |
+| 12 | 8.000 – 10.000 |
+| 13 | 10.000 – 12.000 |
+| 14 | 12.000 – 14.000 |
+| 15 | 14.000 – 16.000 |
+| 16 | 16.000 – 18.000 |
+| 17 | 18.000 – 20.000 |
+| 18 | 20.000 – 22.000 |
+| 19 | 22.000 – 25.000 |
+| 20 | 25.000 – 28.000 |
+| 21 | 28.000 – 31.000 |
+| 22 | 31.000 – 34.000 |
+| 23 | 34.000 – 37.000 |
+| 24 | 37.000 – 40.000 |
 
 ## Troubleshooting
 

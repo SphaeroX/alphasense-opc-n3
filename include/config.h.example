@@ -14,4 +14,10 @@
 // Timezone configuration
 #define TZ_INFO "UTC2"
 
+// Measurement interval in milliseconds between sensor readings. Adjust this
+// value to control how long the sensor collects data before the next read.
+// The main loop uses a non-blocking timer. For example, use 60000 for a
+// 60 second interval.
+#define SENSOR_SLEEP_MS 10000
+
 #endif // CONFIG_H
