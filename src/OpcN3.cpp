@@ -259,6 +259,14 @@ bool OpcN3::writeConfiguration()
         SPI.transfer(_config_vars[i]); // Write each byte from our buffer
     }
     digitalWrite(_ss_pin, HIGH);
+
+    // Wait until the sensor has processed the configuration update
+    if (!waitForReady(CMD_WRITE_CONFIG_VARS, 5000))
+    {
+        SPI.endTransaction();
+        return false;
+    }
+
     SPI.endTransaction();
 
     Serial.println("Successfully wrote configuration variables to the sensor.");
