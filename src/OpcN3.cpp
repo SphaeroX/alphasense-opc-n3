@@ -188,7 +188,8 @@ bool OpcN3::readData(OpcN3Data &data)
     }
 
     // Parse data from buffer
-    for (int i = 0; i < 16; i++)
+    // Read all 24 histogram bins
+    for (int i = 0; i < 24; i++)
         data.bin_counts[i] = combine_bytes(buffer[i * 2], buffer[i * 2 + 1]);
     data.bin1_mtof = buffer[48];
     data.bin3_mtof = buffer[49];
