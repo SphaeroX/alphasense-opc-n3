@@ -14,13 +14,6 @@ const int OPC_MISO_PIN = 19;
 const int OPC_SCK_PIN = 18;
 const int OPC_SS_PIN = 5;
 
-// I2C pins used for the SCD41 sensor on the ESP32
-const int I2C_SDA_PIN = 21;
-const int I2C_SCL_PIN = 22;
-
-// Default I2C address for the SCD41
-const uint8_t SCD41_ADDR = 0x62;
-
 // --- Sampling Period & Sleep Configuration ---
 // Duration to wait between sensor readings (in milliseconds). Adjust this to
 // control how long the OPC-N3 collects data before the next read. The waiting
