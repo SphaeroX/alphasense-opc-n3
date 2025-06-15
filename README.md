@@ -39,8 +39,9 @@ Getting started with this library is straightforward:
    (you can also adjust `SENSOR_SLEEP_MS` here to set the non-blocking interval
    between readings)
 2. Choose the firmware variant:
-   - `esp32dev` builds the full OPC-N3 and SCD41 firmware located in `src/`.
+   - `full` builds the OPC-N3 and SCD41 firmware located in `src/`.
    - `co2only` builds the CO₂-only firmware found in `src_co2/`.
+   - `calibrate_scd41` runs the manual calibration sequence from `src_calibrate/`.
 3. Flash the code to your ESP32
 4. The device will:
     - Automatically connect to your WiFi network
