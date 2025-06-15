@@ -8,6 +8,7 @@
 
 // Define the target CO2 concentration for calibration (in ppm)
 const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
+const unsigned long CALIBRATION_DELAY_MS = 300000; // 5 minutes
 
 const uint16_t CALIBRATION_CO2_PPM = 424;
 const uint8_t LED_PIN = 2; // ESP32 built-in LED (modify if needed)
@@ -70,7 +71,9 @@ void setup()
     // Inform the user to place the sensor in fresh air for calibration
     Serial.print("Place the sensor in fresh air (");
     Serial.print(CALIBRATION_CO2_PPM);
-    Serial.println(" ppm CO2). Calibration will start in 5 minutes...");
+    Serial.print(" ppm CO2). Calibration will start in ");
+    Serial.print(CALIBRATION_DELAY_MS / 60000);
+    Serial.println(" minutes...");
 }
 
 void loop()
@@ -79,7 +82,7 @@ void loop()
     static unsigned long startMs = millis();
     static unsigned long lastMeasurementMs = 0;
 
-    if (!calibrationDone && millis() - startMs >= 300000)
+    if (!calibrationDone && millis() - startMs >= CALIBRATION_DELAY_MS)
     {
         // Start forced recalibration using the defined CO2 value
         Serial.print("Performing forced recalibration to ");
