@@ -5,6 +5,7 @@
 #include <InfluxDbClient.h>
 #include <InfluxDbCloud.h>
 #include "config.h"
+#include <time.h>
 
 const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
 
@@ -18,6 +19,19 @@ SensirionI2cScd4x scd4x;
 
 InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
 Point sensorPoint("scd41");
+
+static void waitForTimeSync()
+{
+    time_t nowSecs = time(nullptr);
+    Serial.print("Waiting for time sync");
+    while (nowSecs < 1609459200)
+    {
+        Serial.print(".");
+        delay(500);
+        nowSecs = time(nullptr);
+    }
+    Serial.println(" done");
+}
 
 void setup()
 {
@@ -36,7 +50,9 @@ void setup()
     }
     Serial.println(" connected");
 
+
     timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
+    waitForTimeSync();
 
     client.setWriteOptions(WriteOptions().writePrecision(WritePrecision::S));
     sensorPoint.addTag("device", DEVICE);

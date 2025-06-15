@@ -37,9 +37,10 @@ Getting started with this library is straightforward:
 
 1. Copy `include/config.h.example` to `include/config.h` and update it with your WiFi and InfluxDB credentials
    (you can also adjust `SENSOR_SLEEP_MS` here to set the non-blocking interval
-   between readings)
-2. The shared `OpcN3` driver resides in `lib/opcn3/`.
-3. Choose the firmware variant:
+   between readings and update `TZ_INFO` if needed)
+2. Ensure the board has internet access so it can synchronize the clock via NTP. Each firmware waits for a valid timestamp before sending data.
+3. The shared `OpcN3` driver resides in `lib/opcn3/`.
+4. Choose the firmware variant:
    - `full` builds the OPC-N3 and SCD41 firmware located in `src/`.
    - `scd41_only` builds the CO₂-only firmware found in `src_co2/`.
    - `opcn3_only` builds only the OPC-N3 firmware in `src_opc_only/`.

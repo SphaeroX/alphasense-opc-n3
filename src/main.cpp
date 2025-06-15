@@ -7,6 +7,7 @@
 #include <InfluxDbCloud.h>
 #include "OpcN3.h"
 #include "config.h"
+#include <time.h>
 
 // --- Pin Configuration ---
 const int OPC_MOSI_PIN = 23;
@@ -38,6 +39,20 @@ const int MAX_CONSECUTIVE_FAILURES = 5;
 InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
 Point sensorPoint("opc_n3");
 
+// Wait until NTP has synchronized system time to a reasonable value
+static void waitForTimeSync()
+{
+    time_t nowSecs = time(nullptr);
+    Serial.print("Waiting for time sync");
+    while (nowSecs < 1609459200) // 2021-01-01
+    {
+        Serial.print(".");
+        delay(500);
+        nowSecs = time(nullptr);
+    }
+    Serial.println(" done");
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -58,6 +73,7 @@ void setup()
 
   // Synchronize time for accurate timestamps
   timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
+  waitForTimeSync();
 
   // Prepare InfluxDB client
   client.setWriteOptions(WriteOptions().writePrecision(WritePrecision::S));
