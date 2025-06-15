@@ -5,11 +5,15 @@
 
 // Define the target CO2 concentration for calibration (in ppm)
 const uint16_t CALIBRATION_CO2_PPM = 424;
+const uint8_t LED_PIN = 2; // ESP32 built-in LED (modify if needed)
 
 SensirionI2cScd4x scd4x;
 
 void setup()
 {
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, HIGH); // Turn on LED during calibration
+
     Serial.begin(115200);
     while (!Serial)
         ;
@@ -46,10 +50,20 @@ void loop()
         {
             Serial.printf("Calibration successful, correction: %u ppm\n", frcCorrection);
             scd4x.persistSettings();
+            // Turn off the LED after calibration is completed
+            digitalWrite(LED_PIN, LOW);
         }
         else
         {
             Serial.printf("Calibration failed, error: %d\n", err);
+            // If calibration fails, blink the LED to indicate an error
+            while (true)
+            {
+                digitalWrite(LED_PIN, HIGH);
+                delay(500);
+                digitalWrite(LED_PIN, LOW);
+                delay(500);
+            }
         }
         scd4x.startPeriodicMeasurement();
         calibrationDone = true;
