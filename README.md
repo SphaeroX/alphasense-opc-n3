@@ -41,7 +41,8 @@ Getting started with this library is straightforward:
 2. Choose the firmware variant:
    - `full` builds the OPC-N3 and SCD41 firmware located in `src/`.
    - `co2only` builds the CO₂-only firmware found in `src_co2/`.
-   - `calibrate_scd41` runs the manual calibration sequence from `src_calibrate/`.
+  - `calibrate_scd41` performs a manual SCD41 calibration and then continues
+    sending measurements to InfluxDB (code in `src_calibrate/`).
 3. Flash the code to your ESP32
 4. The device will:
     - Automatically connect to your WiFi network

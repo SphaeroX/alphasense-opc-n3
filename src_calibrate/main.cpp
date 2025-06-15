@@ -1,13 +1,27 @@
 #include <Arduino.h>
+#include <WiFi.h>
 #include <Wire.h>
 #include <SensirionI2cScd4x.h>
+#include <InfluxDbClient.h>
+#include <InfluxDbCloud.h>
 #include "config.h"
 
 // Define the target CO2 concentration for calibration (in ppm)
+const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
+
 const uint16_t CALIBRATION_CO2_PPM = 424;
 const uint8_t LED_PIN = 2; // ESP32 built-in LED (modify if needed)
 
 SensirionI2cScd4x scd4x;
+
+#if defined(ESP32)
+#define DEVICE "ESP32"
+#else
+#define DEVICE "ARDUINO"
+#endif
+
+InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
+Point sensorPoint("scd41");
 
 void setup()
 {
@@ -17,7 +31,34 @@ void setup()
     Serial.begin(115200);
     while (!Serial)
         ;
-    Serial.println("\n\nSCD41 Manual Calibration");
+    Serial.println("\n\nSCD41 Manual Calibration and Logging");
+
+    Serial.printf("Connecting to WiFi '%s'", WIFI_SSID);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        Serial.print(".");
+        delay(500);
+    }
+    Serial.println(" connected");
+
+    timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
+
+    client.setWriteOptions(WriteOptions().writePrecision(WritePrecision::S));
+    sensorPoint.addTag("device", DEVICE);
+    sensorPoint.addTag("ssid", WiFi.SSID());
+
+    if (client.validateConnection())
+    {
+        Serial.print("Connected to InfluxDB: ");
+        Serial.println(client.getServerUrl());
+    }
+    else
+    {
+        Serial.print("InfluxDB connection failed: ");
+        Serial.println(client.getLastErrorMessage());
+    }
 
     Wire.begin();
     scd4x.begin(Wire, SCD41_I2C_ADDR_62);
@@ -36,6 +77,7 @@ void loop()
 {
     static bool calibrationDone = false;
     static unsigned long startMs = millis();
+    static unsigned long lastMeasurementMs = 0;
 
     if (!calibrationDone && millis() - startMs >= 300000)
     {
@@ -67,6 +109,62 @@ void loop()
         }
         scd4x.startPeriodicMeasurement();
         calibrationDone = true;
-        Serial.println("Calibration finished. Restart device for normal operation.");
+        Serial.println("Calibration finished. Starting normal operation.");
+        return; // wait for next loop to start measurements
+    }
+
+    if (!calibrationDone)
+    {
+        return; // still waiting for calibration period to finish
+    }
+
+    unsigned long now = millis();
+    if (now - lastMeasurementMs < measurementSleepMs)
+    {
+        return;
+    }
+    lastMeasurementMs = now;
+
+    bool scdReady = false;
+    uint16_t co2 = 0;
+    float temperature = 0.0f;
+    float humidity = 0.0f;
+
+    int16_t err = scd4x.getDataReadyStatus(scdReady);
+    if (err == 0 && scdReady)
+    {
+        err = scd4x.readMeasurement(co2, temperature, humidity);
+        if (err == 0)
+        {
+            Serial.printf("CO2: %u ppm\n", co2);
+            Serial.printf("Temperature: %.2f C\n", temperature);
+            Serial.printf("Humidity: %.2f %%RH\n", humidity);
+
+            sensorPoint.clearFields();
+            sensorPoint.addField("co2", co2);
+            sensorPoint.addField("temperature", temperature);
+            sensorPoint.addField("humidity", humidity);
+            sensorPoint.setTime();
+
+            Serial.print("Writing to InfluxDB: ");
+            Serial.println(client.pointToLineProtocol(sensorPoint));
+            if (WiFi.status() != WL_CONNECTED)
+            {
+                Serial.println("WiFi connection lost");
+            }
+            if (!client.writePoint(sensorPoint))
+            {
+                Serial.print("InfluxDB write failed: ");
+                Serial.println(client.getLastErrorMessage());
+            }
+        }
+        else
+        {
+            Serial.println("Error reading SCD41 measurement");
+        }
+    }
+    else if (err != 0)
+    {
+        Serial.println("Error checking SCD41 data ready status");
     }
 }
