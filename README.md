@@ -41,8 +41,8 @@ Getting started with this library is straightforward:
 2. The shared `OpcN3` driver resides in `lib/opcn3/`.
 3. Choose the firmware variant:
    - `full` builds the OPC-N3 and SCD41 firmware located in `src/`.
-   - `co2only` builds the CO₂-only firmware found in `src_co2/`.
-   - `opconly` builds only the OPC-N3 firmware in `src_opc_only/`.
+   - `scd41_only` builds the CO₂-only firmware found in `src_co2/`.
+   - `opcn3_only` builds only the OPC-N3 firmware in `src_opc_only/`.
    - `calibrate_scd41` performs a manual SCD41 calibration and then continues
      sending measurements to InfluxDB (code in `src_calibrate/`).
 4. Flash the code to your ESP32
