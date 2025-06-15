@@ -38,10 +38,13 @@ Getting started with this library is straightforward:
 1. Copy `include/config.h.example` to `include/config.h` and update it with your WiFi and InfluxDB credentials
    (you can also adjust `SENSOR_SLEEP_MS` here to set the non-blocking interval
    between readings)
-2. Flash the code to your ESP32
-3. The device will:
+2. Choose the firmware variant:
+   - `esp32dev` builds the full OPC-N3 and SCD41 firmware located in `src/`.
+   - `co2only` builds the CO₂-only firmware found in `src_co2/`.
+3. Flash the code to your ESP32
+4. The device will:
     - Automatically connect to your WiFi network
-    - Initialize the OPC-N3 sensor
+    - Initialize the OPC-N3 sensor (not used in the `co2only` build)
     - Initialize the SCD41 sensor and start periodic measurements
     - Start continuous measurements
     - Push all data directly to your InfluxDB instance
