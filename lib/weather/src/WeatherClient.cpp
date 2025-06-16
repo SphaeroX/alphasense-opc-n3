@@ -1,6 +1,7 @@
 #include "WeatherClient.h"
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <Arduino.h>
 
 WeatherClient::WeatherClient(float latitude, float longitude)
     : _latitude(latitude), _longitude(longitude)
@@ -21,6 +22,8 @@ bool WeatherClient::fetchCurrent()
     String url = String("https://api.open-meteo.com/v1/forecast?latitude=") + String(_latitude, 4) +
                  "&longitude=" + String(_longitude, 4) +
                  "&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,rain,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=Europe%2FBerlin";
+    Serial.print("Fetching weather from: ");
+    Serial.println(url);
     http.begin(url);
     int code = http.GET();
     if (code != HTTP_CODE_OK)
