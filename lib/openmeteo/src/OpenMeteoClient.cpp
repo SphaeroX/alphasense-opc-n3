@@ -1,16 +1,16 @@
-#include "WeatherClient.h"
+#include "OpenMeteoClient.h"
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
-WeatherClient::WeatherClient(float latitude, float longitude)
+OpenMeteoClient::OpenMeteoClient(float latitude, float longitude)
     : _latitude(latitude), _longitude(longitude)
 {
     memset(&_data, 0, sizeof(_data));
     _data.valid = false;
 }
 
-bool WeatherClient::update()
+bool OpenMeteoClient::update()
 {
     bool weatherOk = fetchCurrent();
     bool airOk = fetchAirQuality();
@@ -18,7 +18,7 @@ bool WeatherClient::update()
     return _data.valid;
 }
 
-bool WeatherClient::fetchCurrent()
+bool OpenMeteoClient::fetchCurrent()
 {
     HTTPClient http;
     String url = String("https://api.open-meteo.com/v1/forecast?latitude=") + String(_latitude, 4) +
@@ -55,7 +55,7 @@ bool WeatherClient::fetchCurrent()
     return true;
 }
 
-bool WeatherClient::fetchAirQuality()
+bool OpenMeteoClient::fetchAirQuality()
 {
     HTTPClient http;
     String url = String("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=") + String(_latitude, 4) +

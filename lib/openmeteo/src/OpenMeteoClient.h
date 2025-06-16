@@ -1,9 +1,9 @@
-#ifndef WEATHER_CLIENT_H
-#define WEATHER_CLIENT_H
+#ifndef OPEN_METEO_CLIENT_H
+#define OPEN_METEO_CLIENT_H
 
 #include <Arduino.h>
 
-struct WeatherData {
+struct OpenMeteoData {
     float temperature_c;
     float humidity_rh;
     float apparent_temperature_c;
@@ -30,18 +30,18 @@ struct WeatherData {
     bool valid;
 };
 
-class WeatherClient {
+class OpenMeteoClient {
 public:
-    WeatherClient(float latitude, float longitude);
+    OpenMeteoClient(float latitude, float longitude);
     bool update();
-    const WeatherData &data() const { return _data; }
+    const OpenMeteoData &data() const { return _data; }
 
 private:
     float _latitude;
     float _longitude;
-    WeatherData _data;
+    OpenMeteoData _data;
     bool fetchCurrent();
     bool fetchAirQuality();
 };
 
-#endif // WEATHER_CLIENT_H
+#endif // OPEN_METEO_CLIENT_H

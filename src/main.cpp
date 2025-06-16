@@ -7,7 +7,7 @@
 #include <InfluxDbCloud.h>
 #include "OpcN3.h"
 #include "config.h"
-#include "WeatherClient.h"
+#include "OpenMeteoClient.h"
 #include "DerivedMetrics.h"
 #include <time.h>
 
@@ -27,7 +27,7 @@ const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
 OpcN3 opc(OPC_SS_PIN);
 SensirionI2cScd4x scd4x;
 const int MAX_CONSECUTIVE_FAILURES = 5;
-WeatherClient weather(WEATHER_LATITUDE, WEATHER_LONGITUDE);
+OpenMeteoClient openMeteo(WEATHER_LATITUDE, WEATHER_LONGITUDE);
 
 #if defined(ESP32)
 #define DEVICE "ESP32"
@@ -74,8 +74,8 @@ void setup()
   timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
   waitForTimeSync();
 
-  // Fetch initial weather data
-  weather.update();
+  // Fetch initial weather and air quality data
+  openMeteo.update();
 
   // Prepare InfluxDB client
   client.setWriteOptions(WriteOptions().writePrecision(WritePrecision::S));
@@ -128,8 +128,8 @@ void loop()
 
   Serial.println("\n--- Requesting New Measurement ---");
 
-  // Update weather data for this interval
-  weather.update();
+  // Update weather and air quality data for this interval
+  openMeteo.update();
 
   OpcN3Data sensorData;
   if (opc.readData(sensorData))
@@ -210,30 +210,30 @@ void loop()
       sensorPoint.addField("calc_pollen_level", pollenLevel);
       sensorPoint.addField("calc_co2_quality", co2Quality);
 
-      if (weather.data().valid)
+      if (openMeteo.data().valid)
       {
-        sensorPoint.addField("weather_temperature", weather.data().temperature_c);
-        sensorPoint.addField("weather_humidity", weather.data().humidity_rh);
-        sensorPoint.addField("weather_apparent_temperature", weather.data().apparent_temperature_c);
-        sensorPoint.addField("weather_is_day", weather.data().is_day);
-        sensorPoint.addField("weather_rain", weather.data().rain_mm);
-        sensorPoint.addField("weather_cloud_cover_pct", weather.data().cloud_cover_pct);
-        sensorPoint.addField("weather_pressure_msl", weather.data().pressure_msl_hpa);
-        sensorPoint.addField("weather_surface_pressure", weather.data().surface_pressure_hpa);
-        sensorPoint.addField("weather_wind_speed_kmh", weather.data().wind_speed_kmh);
-        sensorPoint.addField("weather_wind_dir_deg", weather.data().wind_direction_deg);
-        sensorPoint.addField("weather_wind_gusts_kmh", weather.data().wind_gusts_kmh);
-        sensorPoint.addField("air_ragweed_pollen", weather.data().ragweed_pollen_grains_m3);
-        sensorPoint.addField("air_olive_pollen", weather.data().olive_pollen_grains_m3);
-        sensorPoint.addField("air_mugwort_pollen", weather.data().mugwort_pollen_grains_m3);
-        sensorPoint.addField("air_grass_pollen", weather.data().grass_pollen_grains_m3);
-        sensorPoint.addField("air_birch_pollen", weather.data().birch_pollen_grains_m3);
-        sensorPoint.addField("air_alder_pollen", weather.data().alder_pollen_grains_m3);
-        sensorPoint.addField("air_dust", weather.data().dust_ug_m3);
-        sensorPoint.addField("air_carbon_monoxide", weather.data().carbon_monoxide_ug_m3);
-        sensorPoint.addField("air_pm2_5", weather.data().pm2_5_ug_m3);
-        sensorPoint.addField("air_pm10", weather.data().pm10_ug_m3);
-        sensorPoint.addField("air_european_aqi", weather.data().european_aqi);
+        sensorPoint.addField("weather_temperature", openMeteo.data().temperature_c);
+        sensorPoint.addField("weather_humidity", openMeteo.data().humidity_rh);
+        sensorPoint.addField("weather_apparent_temperature", openMeteo.data().apparent_temperature_c);
+        sensorPoint.addField("weather_is_day", openMeteo.data().is_day);
+        sensorPoint.addField("weather_rain", openMeteo.data().rain_mm);
+        sensorPoint.addField("weather_cloud_cover_pct", openMeteo.data().cloud_cover_pct);
+        sensorPoint.addField("weather_pressure_msl", openMeteo.data().pressure_msl_hpa);
+        sensorPoint.addField("weather_surface_pressure", openMeteo.data().surface_pressure_hpa);
+        sensorPoint.addField("weather_wind_speed_kmh", openMeteo.data().wind_speed_kmh);
+        sensorPoint.addField("weather_wind_dir_deg", openMeteo.data().wind_direction_deg);
+        sensorPoint.addField("weather_wind_gusts_kmh", openMeteo.data().wind_gusts_kmh);
+        sensorPoint.addField("air_ragweed_pollen", openMeteo.data().ragweed_pollen_grains_m3);
+        sensorPoint.addField("air_olive_pollen", openMeteo.data().olive_pollen_grains_m3);
+        sensorPoint.addField("air_mugwort_pollen", openMeteo.data().mugwort_pollen_grains_m3);
+        sensorPoint.addField("air_grass_pollen", openMeteo.data().grass_pollen_grains_m3);
+        sensorPoint.addField("air_birch_pollen", openMeteo.data().birch_pollen_grains_m3);
+        sensorPoint.addField("air_alder_pollen", openMeteo.data().alder_pollen_grains_m3);
+        sensorPoint.addField("air_dust", openMeteo.data().dust_ug_m3);
+        sensorPoint.addField("air_carbon_monoxide", openMeteo.data().carbon_monoxide_ug_m3);
+        sensorPoint.addField("air_pm2_5", openMeteo.data().pm2_5_ug_m3);
+        sensorPoint.addField("air_pm10", openMeteo.data().pm10_ug_m3);
+        sensorPoint.addField("air_european_aqi", openMeteo.data().european_aqi);
       }
 
       // Add individual bin counts as separate fields for detailed analysis
