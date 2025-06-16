@@ -103,9 +103,9 @@ void loop()
             Serial.printf("Humidity: %.2f %%RH\n", humidity);
 
             sensorPoint.clearFields();
-            sensorPoint.addField("co2", co2);
-            sensorPoint.addField("temperature", temperature);
-            sensorPoint.addField("humidity", humidity);
+            sensorPoint.addField("scd41_co2", co2);
+            sensorPoint.addField("scd41_temperature", temperature);
+            sensorPoint.addField("scd41_humidity", humidity);
             sensorPoint.setTime();
 
             Serial.print("Writing to InfluxDB: ");
