@@ -41,9 +41,6 @@ public:
     // Reads the latest histogram data from the sensor
     bool readData(OpcN3Data &data);
 
-    // NEW: Sets the sampling period in seconds (1 to 30 recommended)
-    bool setSamplingPeriod(float seconds);
-
 private:
     // --- Pin and SPI settings ---
     int _ss_pin;

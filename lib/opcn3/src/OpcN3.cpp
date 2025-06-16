@@ -118,57 +118,9 @@ bool OpcN3::begin()
         return false;
     }
 
-    // Step 5: Set default sampling period to 1 second
-    Serial.println("\n--- Initialization Step 5: Setting Default Sampling Period ---");
-    if (!setSamplingPeriod(1.0))
-    {
-        Serial.println("WARNING: Could not set default sampling period.");
-        // This is not fatal, we can continue with the sensor's default.
-    }
 
     Serial.println("\nInitialization successful. Starting measurements...");
     return true;
-}
-
-bool OpcN3::setSamplingPeriod(float seconds)
-{
-    if (seconds < 1.0 || seconds > 30.0)
-    {
-        Serial.println("ERROR: Sampling period must be between 1 and 30 seconds.");
-        return false;
-    }
-
-    // The sampling period is determined by AMSamplingIntervalCount.
-    // The documentation states this is in units of 1.4s samples.
-    // However, practical implementation shows it's closer to the histogram period.
-    // We will set the value based on the formula that seems to work with the firmware.
-    // The histogram period is roughly 1/10th of the repeat interval in ms.
-    // So for a 1-second (1000ms) repeat interval, we need a value around 100.
-    // Let's use a simple conversion: value = seconds * 100
-    uint16_t interval_count = (uint16_t)(seconds * 100.0f);
-
-    Serial.printf("Setting AMSamplingIntervalCount to %u for a %.1f second period...\n", interval_count, seconds);
-
-    // The AMSamplingIntervalCount is at index 156 in the config variables array.
-    // It's a 16-bit value (LSB, MSB).
-    _config_vars[156] = interval_count & 0xFF;        // LSB
-    _config_vars[157] = (interval_count >> 8) & 0xFF; // MSB
-
-    // Recalculate CRC for the configuration block after modification
-    uint16_t new_crc = crc16_calc(_config_vars, 166);
-    _config_vars[166] = new_crc & 0xFF;
-    _config_vars[167] = (new_crc >> 8) & 0xFF;
-
-    // Now, write the modified configuration back to the sensor.
-    bool ok = writeConfiguration();
-    if (ok)
-    {
-        // Give the sensor time to process the new configuration before
-        // sending another command. Without this delay a subsequent
-        // manual update may fail with a timeout.
-        delay(DELAY_CMD_RECOVERY_MS);
-    }
-    return ok;
 }
 
 bool OpcN3::readData(OpcN3Data &data)

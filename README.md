@@ -15,8 +15,6 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
     - Particle counts for 24 distinct size bins.
     - Particle size boundaries for each bin (in µm).
     - Actual sampling period and sample flow rate.
-    - Status information like laser status and reject counts.
-- **Configurable Sampling Period**: Allows you to programmatically set the sensor's sampling period.
 - **Adjustable Measurement Sleep**: Configure how long the sensor waits between
   readings so that it can collect data over extended periods (e.g., 60 seconds)
   before transmission. The wait uses a non-blocking timer so your code can
@@ -80,7 +78,6 @@ Initializes the sensor. This method performs the full startup sequence:
 2.  Establishes and verifies the SPI connection by reading the firmware version.
 3.  Turns on the fan and laser, with appropriate delays.
 4.  Reads the sensor's configuration, including particle bin boundaries.
-5.  Sets a default sampling period of 1 second.
 - **Returns**: `true` if initialization was successful, `false` otherwise.
 
 #### `bool readData(OpcN3Data &data)`
@@ -88,13 +85,6 @@ Reads the latest histogram data packet from the sensor, validates the CRC, and p
 - **Parameters**:
     - `data`: A reference to an `OpcN3Data` struct where the results will be stored.
 - **Returns**: `true` if data was read and validated successfully, `false` on communication error or CRC mismatch.
-
-#### `bool setSamplingPeriod(float seconds)`
-Sets the active sampling period of the sensor. This modifies the `AMSamplingIntervalCount` configuration variable in the sensor's volatile memory. The change will be reset on power loss.
-- A short delay is introduced after writing the new value so the sensor has time to process the update.
-- **Parameters**:
-    - `seconds`: The desired sampling period in seconds. The recommended range is 1.0 to 30.0.
-- **Returns**: `true` if the configuration was successfully written to the sensor, `false` otherwise.
 
 ### `OpcN3Data` Struct
 
