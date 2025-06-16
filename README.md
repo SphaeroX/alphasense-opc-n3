@@ -21,7 +21,7 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
   perform other tasks.
 - **Clear Serial Output**: Provides detailed, human-readable logs for initialization, measurements, and error conditions.
 - **Integrated CO₂ Measurements**: Reads CO₂ concentration, temperature, and humidity from an attached SCD41 sensor via I²C.
-- **Weather API Support**: Retrieves current weather conditions from the Open-Meteo service and stores them in InfluxDB.
+- **Open-Meteo API Support**: Retrieves weather conditions and air quality metrics from the Open-Meteo service and stores them in InfluxDB.
 - **Derived Metrics**: Calculates pollen load and CO₂ air quality from sensor data and writes them to InfluxDB using the `calc_` prefix.
 
 ## Hardware Requirements
@@ -173,7 +173,7 @@ allows detailed analysis and visualization of the histogram data in tools like
 Grafana.
 The CO₂, temperature, and humidity values measured by the SCD41 are also
 included in each InfluxDB point. All field names are prefixed with their source
-(`opc_`, `scd41_`, or `weather_`) so the origin of every measurement is clear.
+(`opc_`, `scd41_`, `weather_`, or `air_`) so the origin of every measurement is clear.
 
 ## License
 
