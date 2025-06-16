@@ -212,13 +212,15 @@ void loop()
       {
         sensorPoint.addField("weather_temp", weather.data().temperature_c);
         sensorPoint.addField("weather_humidity", weather.data().humidity_rh);
-        sensorPoint.addField("weather_precip_mm", weather.data().precipitation_mm);
+        sensorPoint.addField("weather_apparent", weather.data().apparent_temperature_c);
+        sensorPoint.addField("weather_is_day", weather.data().is_day);
+        sensorPoint.addField("weather_rain", weather.data().rain_mm);
         sensorPoint.addField("cloud_cover_pct", weather.data().cloud_cover_pct);
+        sensorPoint.addField("pressure_msl", weather.data().pressure_msl_hpa);
+        sensorPoint.addField("surface_pressure", weather.data().surface_pressure_hpa);
         sensorPoint.addField("wind_speed_kmh", weather.data().wind_speed_kmh);
         sensorPoint.addField("wind_dir_deg", weather.data().wind_direction_deg);
-        sensorPoint.addField("pollen_grass", weather.data().pollen_grass);
-        sensorPoint.addField("pollen_tree", weather.data().pollen_tree);
-        sensorPoint.addField("pollen_weed", weather.data().pollen_weed);
+        sensorPoint.addField("wind_gusts_kmh", weather.data().wind_gusts_kmh);
       }
 
       // Add individual bin counts as separate fields for detailed analysis

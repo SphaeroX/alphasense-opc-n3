@@ -6,13 +6,15 @@
 struct WeatherData {
     float temperature_c;
     float humidity_rh;
-    float precipitation_mm;
+    float apparent_temperature_c;
+    bool is_day;
+    float rain_mm;
     float cloud_cover_pct;
+    float pressure_msl_hpa;
+    float surface_pressure_hpa;
     float wind_speed_kmh;
     float wind_direction_deg;
-    float pollen_grass;
-    float pollen_tree;
-    float pollen_weed;
+    float wind_gusts_kmh;
     bool valid;
 };
 
@@ -27,7 +29,6 @@ private:
     float _longitude;
     WeatherData _data;
     bool fetchCurrent();
-    bool fetchPollen();
 };
 
 #endif // WEATHER_CLIENT_H
