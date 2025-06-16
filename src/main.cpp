@@ -7,6 +7,7 @@
 #include <InfluxDbCloud.h>
 #include "OpcN3.h"
 #include "config.h"
+#include "WeatherClient.h"
 #include <time.h>
 
 // --- Pin Configuration ---
@@ -29,6 +30,7 @@ float samplingPeriod = measurementSleepMs / 1000.0f;
 OpcN3 opc(OPC_SS_PIN);
 SensirionI2cScd4x scd4x;
 const int MAX_CONSECUTIVE_FAILURES = 5;
+WeatherClient weather(WEATHER_LATITUDE, WEATHER_LONGITUDE);
 
 #if defined(ESP32)
 #define DEVICE "ESP32"
@@ -74,6 +76,9 @@ void setup()
   // Synchronize time for accurate timestamps
   timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
   waitForTimeSync();
+
+  // Fetch initial weather data
+  weather.update();
 
   // Prepare InfluxDB client
   client.setWriteOptions(WriteOptions().writePrecision(WritePrecision::S));
@@ -131,6 +136,9 @@ void loop()
   lastMeasurementMs = now;
 
   Serial.println("\n--- Requesting New Measurement ---");
+
+  // Update weather data for this interval
+  weather.update();
 
   OpcN3Data sensorData;
   if (opc.readData(sensorData))
@@ -199,6 +207,21 @@ void loop()
       sensorPoint.addField("co2", co2);
       sensorPoint.addField("scd_temp", scdTemperature);
       sensorPoint.addField("scd_humidity", scdHumidity);
+
+      if (weather.data().valid)
+      {
+        sensorPoint.addField("weather_temp", weather.data().temperature_c);
+        sensorPoint.addField("weather_humidity", weather.data().humidity_rh);
+        sensorPoint.addField("weather_apparent", weather.data().apparent_temperature_c);
+        sensorPoint.addField("weather_is_day", weather.data().is_day);
+        sensorPoint.addField("weather_rain", weather.data().rain_mm);
+        sensorPoint.addField("cloud_cover_pct", weather.data().cloud_cover_pct);
+        sensorPoint.addField("pressure_msl", weather.data().pressure_msl_hpa);
+        sensorPoint.addField("surface_pressure", weather.data().surface_pressure_hpa);
+        sensorPoint.addField("wind_speed_kmh", weather.data().wind_speed_kmh);
+        sensorPoint.addField("wind_dir_deg", weather.data().wind_direction_deg);
+        sensorPoint.addField("wind_gusts_kmh", weather.data().wind_gusts_kmh);
+      }
 
       // Add individual bin counts as separate fields for detailed analysis
       for (int i = 0; i < 24; i++)
