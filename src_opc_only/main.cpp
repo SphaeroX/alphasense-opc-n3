@@ -148,17 +148,17 @@ void loop()
 
       // Prepare InfluxDB point
       sensorPoint.clearFields();
-      sensorPoint.addField("pm1", sensorData.pm_a);
-      sensorPoint.addField("pm2_5", sensorData.pm_b);
-      sensorPoint.addField("pm10", sensorData.pm_c);
-      sensorPoint.addField("temperature", sensorData.temperature_c);
-      sensorPoint.addField("humidity", sensorData.humidity_rh);
+      sensorPoint.addField("opc_pm1", sensorData.pm_a);
+      sensorPoint.addField("opc_pm2_5", sensorData.pm_b);
+      sensorPoint.addField("opc_pm10", sensorData.pm_c);
+      sensorPoint.addField("opc_temperature", sensorData.temperature_c);
+      sensorPoint.addField("opc_humidity", sensorData.humidity_rh);
 
       // Add individual bin counts as separate fields for detailed analysis
       for (int i = 0; i < 24; i++)
       {
-        char fieldName[8];
-        snprintf(fieldName, sizeof(fieldName), "bin_%02d", i);
+        char fieldName[12];
+        snprintf(fieldName, sizeof(fieldName), "opc_bin_%02d", i);
         sensorPoint.addField(fieldName, (int)sensorData.bin_counts[i]);
       }
 

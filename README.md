@@ -157,11 +157,12 @@ distribution. The table below lists the approximate diameter range for each bin.
 ## InfluxDB Integration
 The example project writes all sensor data directly to an InfluxDB instance.
 In addition to the PM values and environmental measurements, the individual
-particle bin counts are stored as separate fields (`bin_00` to `bin_23`). This
+particle bin counts are stored as separate fields (`opc_bin_00` to `opc_bin_23`). This
 allows detailed analysis and visualization of the histogram data in tools like
 Grafana.
 The CO₂, temperature, and humidity values measured by the SCD41 are also
-included in each InfluxDB point.
+included in each InfluxDB point. All field names are prefixed with their source
+(`opc_`, `scd41_`, or `weather_`) so the origin of every measurement is clear.
 
 ## License
 

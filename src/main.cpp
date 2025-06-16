@@ -190,35 +190,35 @@ void loop()
 
       // Prepare InfluxDB point
       sensorPoint.clearFields();
-      sensorPoint.addField("pm1", sensorData.pm_a);
-      sensorPoint.addField("pm2_5", sensorData.pm_b);
-      sensorPoint.addField("pm10", sensorData.pm_c);
-      sensorPoint.addField("temperature", sensorData.temperature_c);
-      sensorPoint.addField("humidity", sensorData.humidity_rh);
-      sensorPoint.addField("co2", co2);
-      sensorPoint.addField("scd_temp", scdTemperature);
-      sensorPoint.addField("scd_humidity", scdHumidity);
+      sensorPoint.addField("opc_pm1", sensorData.pm_a);
+      sensorPoint.addField("opc_pm2_5", sensorData.pm_b);
+      sensorPoint.addField("opc_pm10", sensorData.pm_c);
+      sensorPoint.addField("opc_temperature", sensorData.temperature_c);
+      sensorPoint.addField("opc_humidity", sensorData.humidity_rh);
+      sensorPoint.addField("scd41_co2", co2);
+      sensorPoint.addField("scd41_temperature", scdTemperature);
+      sensorPoint.addField("scd41_humidity", scdHumidity);
 
       if (weather.data().valid)
       {
-        sensorPoint.addField("weather_temp", weather.data().temperature_c);
+        sensorPoint.addField("weather_temperature", weather.data().temperature_c);
         sensorPoint.addField("weather_humidity", weather.data().humidity_rh);
-        sensorPoint.addField("weather_apparent", weather.data().apparent_temperature_c);
+        sensorPoint.addField("weather_apparent_temperature", weather.data().apparent_temperature_c);
         sensorPoint.addField("weather_is_day", weather.data().is_day);
         sensorPoint.addField("weather_rain", weather.data().rain_mm);
-        sensorPoint.addField("cloud_cover_pct", weather.data().cloud_cover_pct);
-        sensorPoint.addField("pressure_msl", weather.data().pressure_msl_hpa);
-        sensorPoint.addField("surface_pressure", weather.data().surface_pressure_hpa);
-        sensorPoint.addField("wind_speed_kmh", weather.data().wind_speed_kmh);
-        sensorPoint.addField("wind_dir_deg", weather.data().wind_direction_deg);
-        sensorPoint.addField("wind_gusts_kmh", weather.data().wind_gusts_kmh);
+        sensorPoint.addField("weather_cloud_cover_pct", weather.data().cloud_cover_pct);
+        sensorPoint.addField("weather_pressure_msl", weather.data().pressure_msl_hpa);
+        sensorPoint.addField("weather_surface_pressure", weather.data().surface_pressure_hpa);
+        sensorPoint.addField("weather_wind_speed_kmh", weather.data().wind_speed_kmh);
+        sensorPoint.addField("weather_wind_dir_deg", weather.data().wind_direction_deg);
+        sensorPoint.addField("weather_wind_gusts_kmh", weather.data().wind_gusts_kmh);
       }
 
       // Add individual bin counts as separate fields for detailed analysis
       for (int i = 0; i < 24; i++)
       {
-        char fieldName[8];
-        snprintf(fieldName, sizeof(fieldName), "bin_%02d", i);
+        char fieldName[12];
+        snprintf(fieldName, sizeof(fieldName), "opc_bin_%02d", i);
         sensorPoint.addField(fieldName, (int)sensorData.bin_counts[i]);
       }
 
