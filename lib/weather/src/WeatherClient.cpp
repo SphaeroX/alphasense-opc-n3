@@ -30,7 +30,7 @@ bool WeatherClient::fetchCurrent()
         http.end();
         return false;
     }
-    DynamicJsonDocument doc(1024);
+    JsonDocument doc;
     DeserializationError err = deserializeJson(doc, http.getString());
     http.end();
     if (err)
@@ -60,7 +60,7 @@ bool WeatherClient::fetchPollen()
         http.end();
         return false;
     }
-    DynamicJsonDocument doc(2048);
+    JsonDocument doc;
     DeserializationError err = deserializeJson(doc, http.getString());
     http.end();
     if (err)
