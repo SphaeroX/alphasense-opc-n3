@@ -35,20 +35,20 @@ WeatherClient weather(WEATHER_LATITUDE, WEATHER_LONGITUDE);
 #endif
 
 InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
-Point sensorPoint("opc_n3");
+Point sensorPoint("full");
 
 // Wait until NTP has synchronized system time to a reasonable value
 static void waitForTimeSync()
 {
-    time_t nowSecs = time(nullptr);
-    Serial.print("Waiting for time sync");
-    while (nowSecs < 1609459200) // 2021-01-01
-    {
-        Serial.print(".");
-        delay(500);
-        nowSecs = time(nullptr);
-    }
-    Serial.println(" done");
+  time_t nowSecs = time(nullptr);
+  Serial.print("Waiting for time sync");
+  while (nowSecs < 1609459200) // 2021-01-01
+  {
+    Serial.print(".");
+    delay(500);
+    nowSecs = time(nullptr);
+  }
+  Serial.println(" done");
 }
 
 void setup()
@@ -110,7 +110,6 @@ void setup()
     while (1)
       ; // Halt execution
   }
-
 }
 
 void loop()
