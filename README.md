@@ -91,6 +91,7 @@ Reads the latest histogram data packet from the sensor, validates the CRC, and p
 
 #### `bool setSamplingPeriod(float seconds)`
 Sets the active sampling period of the sensor. This modifies the `AMSamplingIntervalCount` configuration variable in the sensor's volatile memory. The change will be reset on power loss.
+- A short delay is introduced after writing the new value so the sensor has time to process the update.
 - **Parameters**:
     - `seconds`: The desired sampling period in seconds. The recommended range is 1.0 to 30.0.
 - **Returns**: `true` if the configuration was successfully written to the sensor, `false` otherwise.

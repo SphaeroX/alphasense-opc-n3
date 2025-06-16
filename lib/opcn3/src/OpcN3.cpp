@@ -154,8 +154,21 @@ bool OpcN3::setSamplingPeriod(float seconds)
     _config_vars[156] = interval_count & 0xFF;        // LSB
     _config_vars[157] = (interval_count >> 8) & 0xFF; // MSB
 
+    // Recalculate CRC for the configuration block after modification
+    uint16_t new_crc = crc16_calc(_config_vars, 166);
+    _config_vars[166] = new_crc & 0xFF;
+    _config_vars[167] = (new_crc >> 8) & 0xFF;
+
     // Now, write the modified configuration back to the sensor.
-    return writeConfiguration();
+    bool ok = writeConfiguration();
+    if (ok)
+    {
+        // Give the sensor time to process the new configuration before
+        // sending another command. Without this delay a subsequent
+        // manual update may fail with a timeout.
+        delay(DELAY_CMD_RECOVERY_MS);
+    }
+    return ok;
 }
 
 bool OpcN3::readData(OpcN3Data &data)
