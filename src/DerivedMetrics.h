@@ -4,7 +4,7 @@
 inline uint32_t calculatePollenCount(const OpcN3Data &data)
 {
     uint32_t count = 0;
-    for (int i = 12; i < 24; ++i) // bins 13-24 correspond to ~10-40 um
+    for (int i = 16; i < 24; ++i) // bins 17-24 correspond to ~18-40 um
     {
         count += data.bin_counts[i];
     }
@@ -20,24 +20,33 @@ enum PollenLevel
     POLLEN_VERY_HIGH
 };
 
-inline uint8_t classifyPollenLevel(uint32_t pollenCount)
+inline float calculatePollenConcentration(const OpcN3Data &data)
 {
-    if (pollenCount < 100)
+    uint32_t count = calculatePollenCount(data);
+    float volume_m3 = (data.sample_flow_rate_ml_s * data.sampling_period_s) / 1e6f;
+    if (volume_m3 <= 0.0f)
+        return 0.0f;
+    return count / volume_m3; // grains per cubic meter
+}
+
+inline uint8_t classifyPollenLevel(float grainsPerM3)
+{
+    if (grainsPerM3 < 10.0f)
         return POLLEN_VERY_LOW;
-    else if (pollenCount < 300)
+    else if (grainsPerM3 < 50.0f)
         return POLLEN_LOW;
-    else if (pollenCount < 700)
+    else if (grainsPerM3 < 200.0f)
         return POLLEN_MODERATE;
-    else if (pollenCount < 1200)
+    else if (grainsPerM3 < 700.0f)
         return POLLEN_HIGH;
     else
         return POLLEN_VERY_HIGH;
 }
 
-inline const char *pollenLevelName(uint8_t level)
-{
-    switch (level)
-    {
+  inline const char *pollenLevelName(uint8_t level)
+  {
+      switch (level)
+      {
     case POLLEN_VERY_LOW:
         return "very_low";
     case POLLEN_LOW:
@@ -46,10 +55,33 @@ inline const char *pollenLevelName(uint8_t level)
         return "moderate";
     case POLLEN_HIGH:
         return "high";
-    default:
-        return "very_high";
+      default:
+          return "very_high";
+      }
+  }
+
+struct PollenAccumulator
+{
+    uint32_t totalCount = 0;
+    float totalVolumeM3 = 0.0f;
+
+    void addSample(const OpcN3Data &data)
+    {
+        totalCount += calculatePollenCount(data);
+        totalVolumeM3 += (data.sample_flow_rate_ml_s * data.sampling_period_s) / 1e6f;
     }
-}
+
+    float concentration() const
+    {
+        return totalVolumeM3 > 0.0f ? totalCount / totalVolumeM3 : 0.0f;
+    }
+
+    void reset()
+    {
+        totalCount = 0;
+        totalVolumeM3 = 0.0f;
+    }
+};
 
 enum Co2Quality
 {

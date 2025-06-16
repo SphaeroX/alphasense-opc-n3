@@ -23,6 +23,10 @@ const int OPC_SS_PIN = 5;
 // mechanism is non-blocking so the MCU can perform other tasks.
 const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
 
+const unsigned long pollenAvgWindowMs = 60000; // averaging window for pollen metrics
+PollenAccumulator pollenAccumulator;
+unsigned long pollenWindowStartMs = 0;
+
 // --- Global Objects ---
 OpcN3 opc(OPC_SS_PIN);
 SensirionI2cScd4x scd4x;
@@ -111,6 +115,7 @@ void setup()
     while (1)
       ; // Halt execution
   }
+  pollenWindowStartMs = millis();
 }
 
 void loop()
@@ -188,11 +193,14 @@ void loop()
                       sensorData.bin_counts[i]);
       }
 
-      // Derived metrics
-      uint32_t pollenCount = calculatePollenCount(sensorData);
-      uint8_t pollenLevel = classifyPollenLevel(pollenCount);
+      // Derived metrics using accumulated data
+      pollenAccumulator.addSample(sensorData);
+      uint32_t pollenCount = pollenAccumulator.totalCount;
+      float pollenConcentration = pollenAccumulator.concentration();
+      uint8_t pollenLevel = classifyPollenLevel(pollenConcentration);
       uint8_t co2Quality = classifyCo2Quality(co2);
       Serial.printf("Pollen count: %u\n", pollenCount);
+      Serial.printf("Pollen concentration: %.2f grains/m3\n", pollenConcentration);
       Serial.printf("Pollen level: %s (%u)\n", pollenLevelName(pollenLevel), pollenLevel);
       Serial.printf("CO2 quality: %s (%u)\n", co2QualityName(co2Quality), co2Quality);
 
@@ -207,6 +215,7 @@ void loop()
       sensorPoint.addField("scd41_temperature", scdTemperature);
       sensorPoint.addField("scd41_humidity", scdHumidity);
       sensorPoint.addField("calc_pollen_count", (int)pollenCount);
+      sensorPoint.addField("calc_pollen_concentration", pollenConcentration);
       sensorPoint.addField("calc_pollen_level", pollenLevel);
       sensorPoint.addField("calc_co2_quality", co2Quality);
 
@@ -256,6 +265,12 @@ void loop()
       {
         Serial.print("InfluxDB write failed: ");
         Serial.println(client.getLastErrorMessage());
+      }
+
+      if (now - pollenWindowStartMs >= pollenAvgWindowMs)
+      {
+        pollenAccumulator.reset();
+        pollenWindowStartMs = now;
       }
     }
   }
