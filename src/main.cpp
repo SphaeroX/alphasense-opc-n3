@@ -190,11 +190,11 @@ void loop()
 
       // Derived metrics
       uint32_t pollenCount = calculatePollenCount(sensorData);
-      const char *pollenLevel = classifyPollenLevel(pollenCount);
-      const char *co2Quality = classifyCo2Quality(co2);
+      uint8_t pollenLevel = classifyPollenLevel(pollenCount);
+      uint8_t co2Quality = classifyCo2Quality(co2);
       Serial.printf("Pollen count: %u\n", pollenCount);
-      Serial.printf("Pollen level: %s\n", pollenLevel);
-      Serial.printf("CO2 quality: %s\n", co2Quality);
+      Serial.printf("Pollen level: %s (%u)\n", pollenLevelName(pollenLevel), pollenLevel);
+      Serial.printf("CO2 quality: %s (%u)\n", co2QualityName(co2Quality), co2Quality);
 
       // Prepare InfluxDB point
       sensorPoint.clearFields();

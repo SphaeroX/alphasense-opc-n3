@@ -11,30 +11,82 @@ inline uint32_t calculatePollenCount(const OpcN3Data &data)
     return count;
 }
 
-inline const char *classifyPollenLevel(uint32_t pollenCount)
+enum PollenLevel
+{
+    POLLEN_VERY_LOW = 0,
+    POLLEN_LOW,
+    POLLEN_MODERATE,
+    POLLEN_HIGH,
+    POLLEN_VERY_HIGH
+};
+
+inline uint8_t classifyPollenLevel(uint32_t pollenCount)
 {
     if (pollenCount < 100)
-        return "very_low";
+        return POLLEN_VERY_LOW;
     else if (pollenCount < 300)
-        return "low";
+        return POLLEN_LOW;
     else if (pollenCount < 700)
-        return "moderate";
+        return POLLEN_MODERATE;
     else if (pollenCount < 1200)
-        return "high";
+        return POLLEN_HIGH;
     else
-        return "very_high";
+        return POLLEN_VERY_HIGH;
 }
 
-inline const char *classifyCo2Quality(uint16_t co2ppm)
+inline const char *pollenLevelName(uint8_t level)
+{
+    switch (level)
+    {
+    case POLLEN_VERY_LOW:
+        return "very_low";
+    case POLLEN_LOW:
+        return "low";
+    case POLLEN_MODERATE:
+        return "moderate";
+    case POLLEN_HIGH:
+        return "high";
+    default:
+        return "very_high";
+    }
+}
+
+enum Co2Quality
+{
+    CO2_EXCELLENT = 0,
+    CO2_GOOD,
+    CO2_FAIR,
+    CO2_POOR,
+    CO2_VERY_POOR
+};
+
+inline uint8_t classifyCo2Quality(uint16_t co2ppm)
 {
     if (co2ppm < 800)
-        return "excellent";
+        return CO2_EXCELLENT;
     else if (co2ppm < 1000)
-        return "good";
+        return CO2_GOOD;
     else if (co2ppm < 1500)
-        return "fair";
+        return CO2_FAIR;
     else if (co2ppm < 2000)
-        return "poor";
+        return CO2_POOR;
     else
+        return CO2_VERY_POOR;
+}
+
+inline const char *co2QualityName(uint8_t quality)
+{
+    switch (quality)
+    {
+    case CO2_EXCELLENT:
+        return "excellent";
+    case CO2_GOOD:
+        return "good";
+    case CO2_FAIR:
+        return "fair";
+    case CO2_POOR:
+        return "poor";
+    default:
         return "very_poor";
+    }
 }
