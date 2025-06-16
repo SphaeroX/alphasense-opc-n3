@@ -223,6 +223,17 @@ void loop()
         sensorPoint.addField("weather_wind_speed_kmh", weather.data().wind_speed_kmh);
         sensorPoint.addField("weather_wind_dir_deg", weather.data().wind_direction_deg);
         sensorPoint.addField("weather_wind_gusts_kmh", weather.data().wind_gusts_kmh);
+        sensorPoint.addField("air_ragweed_pollen", weather.data().ragweed_pollen_grains_m3);
+        sensorPoint.addField("air_olive_pollen", weather.data().olive_pollen_grains_m3);
+        sensorPoint.addField("air_mugwort_pollen", weather.data().mugwort_pollen_grains_m3);
+        sensorPoint.addField("air_grass_pollen", weather.data().grass_pollen_grains_m3);
+        sensorPoint.addField("air_birch_pollen", weather.data().birch_pollen_grains_m3);
+        sensorPoint.addField("air_alder_pollen", weather.data().alder_pollen_grains_m3);
+        sensorPoint.addField("air_dust", weather.data().dust_ug_m3);
+        sensorPoint.addField("air_carbon_monoxide", weather.data().carbon_monoxide_ug_m3);
+        sensorPoint.addField("air_pm2_5", weather.data().pm2_5_ug_m3);
+        sensorPoint.addField("air_pm10", weather.data().pm10_ug_m3);
+        sensorPoint.addField("air_european_aqi", weather.data().european_aqi);
       }
 
       // Add individual bin counts as separate fields for detailed analysis

@@ -15,6 +15,18 @@ struct WeatherData {
     float wind_speed_kmh;
     float wind_direction_deg;
     float wind_gusts_kmh;
+    // Air quality fields
+    float ragweed_pollen_grains_m3;
+    float olive_pollen_grains_m3;
+    float mugwort_pollen_grains_m3;
+    float grass_pollen_grains_m3;
+    float birch_pollen_grains_m3;
+    float alder_pollen_grains_m3;
+    float dust_ug_m3;
+    float carbon_monoxide_ug_m3;
+    float pm2_5_ug_m3;
+    float pm10_ug_m3;
+    float european_aqi;
     bool valid;
 };
 
@@ -29,6 +41,7 @@ private:
     float _longitude;
     WeatherData _data;
     bool fetchCurrent();
+    bool fetchAirQuality();
 };
 
 #endif // WEATHER_CLIENT_H
