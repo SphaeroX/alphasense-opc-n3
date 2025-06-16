@@ -175,6 +175,32 @@ The CO₂, temperature, and humidity values measured by the SCD41 are also
 included in each InfluxDB point. All field names are prefixed with their source
 (`opc_`, `scd41_`, `weather_`, or `air_`) so the origin of every measurement is clear.
 
+## Plotting Data from InfluxDB
+
+The repository includes a helper script `tools/plot_influx.py` that retrieves measurements from InfluxDB and plots them with Matplotlib. Connection details can be supplied via command-line options or the environment variables `INFLUXDB_URL`, `INFLUXDB_TOKEN`, `INFLUXDB_ORG` and `INFLUXDB_BUCKET`. If none of these are provided, the script reads the credentials from `include/config.h.example`.
+
+The configuration file used for defaults can be overridden with the `--config` option.
+
+Install the required Python packages first:
+
+```bash
+pip install pandas matplotlib influxdb-client openai
+```
+
+Set your OpenAI API key in the `OPENAI_API_KEY` environment variable if you want
+to use the interactive ChatGPT mode.
+
+Example:
+
+```bash
+python tools/plot_influx.py --fields scd41_co2 weather_temperature --range 1h --measurement full
+```
+
+This command plots the CO₂ concentration and weather temperature recorded in the last hour.
+
+Running the script without `--fields` starts an interactive chat session where
+ChatGPT helps you build the query and plot code.
+
 ## License
 
 This project is open-source. Please feel free to use, modify, and distribute it. See the `LICENSE` file for details.
