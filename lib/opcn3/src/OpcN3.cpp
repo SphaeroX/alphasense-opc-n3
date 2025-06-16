@@ -160,7 +160,15 @@ bool OpcN3::setSamplingPeriod(float seconds)
     _config_vars[167] = (new_crc >> 8) & 0xFF;
 
     // Now, write the modified configuration back to the sensor.
-    return writeConfiguration();
+    bool ok = writeConfiguration();
+    if (ok)
+    {
+        // Give the sensor time to process the new configuration before
+        // sending another command. Without this delay a subsequent
+        // manual update may fail with a timeout.
+        delay(DELAY_CMD_RECOVERY_MS);
+    }
+    return ok;
 }
 
 bool OpcN3::readData(OpcN3Data &data)
