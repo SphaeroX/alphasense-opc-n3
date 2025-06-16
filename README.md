@@ -22,6 +22,7 @@ The library automatically transfers all measurements to InfluxDB via WiFi connec
 - **Clear Serial Output**: Provides detailed, human-readable logs for initialization, measurements, and error conditions.
 - **Integrated CO₂ Measurements**: Reads CO₂ concentration, temperature, and humidity from an attached SCD41 sensor via I²C.
 - **Weather API Support**: Retrieves current weather conditions from the Open-Meteo service and stores them in InfluxDB.
+- **Derived Metrics**: Calculates pollen load and CO₂ air quality from sensor data and writes them to InfluxDB using the `calc_` prefix.
 
 ## Hardware Requirements
 
@@ -140,6 +141,16 @@ distribution. The table below lists the approximate diameter range for each bin.
 | 22 | 31.000 – 34.000 |
 | 23 | 34.000 – 37.000 |
 | 24 | 37.000 – 40.000 |
+
+### Derived Metrics
+
+The firmware calculates additional values on the device:
+
+- **Pollen count**: sum of histogram bins 13–24 (particles roughly 10–40 µm).
+- **Pollen level**: qualitative state derived from the count (`very_low`, `low`, `moderate`, `high`, `very_high`).
+- **CO₂ quality**: classification of indoor air quality based on measured CO₂ (`excellent`, `good`, `fair`, `poor`, `very_poor`).
+
+All derived fields are written to InfluxDB with the `calc_` prefix.
 
 ## Troubleshooting
 
