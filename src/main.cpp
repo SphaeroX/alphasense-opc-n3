@@ -8,6 +8,7 @@
 #include "OpcN3.h"
 #include "config.h"
 #include "WeatherClient.h"
+#include "DerivedMetrics.h"
 #include <time.h>
 
 // --- Pin Configuration ---
@@ -187,6 +188,14 @@ void loop()
                       sensorData.bin_counts[i]);
       }
 
+      // Derived metrics
+      uint32_t pollenCount = calculatePollenCount(sensorData);
+      const char *pollenLevel = classifyPollenLevel(pollenCount);
+      const char *co2Quality = classifyCo2Quality(co2);
+      Serial.printf("Pollen count: %u\n", pollenCount);
+      Serial.printf("Pollen level: %s\n", pollenLevel);
+      Serial.printf("CO2 quality: %s\n", co2Quality);
+
       // Prepare InfluxDB point
       sensorPoint.clearFields();
       sensorPoint.addField("opc_pm1", sensorData.pm_a);
@@ -197,6 +206,9 @@ void loop()
       sensorPoint.addField("scd41_co2", co2);
       sensorPoint.addField("scd41_temperature", scdTemperature);
       sensorPoint.addField("scd41_humidity", scdHumidity);
+      sensorPoint.addField("calc_pollen_count", (int)pollenCount);
+      sensorPoint.addField("calc_pollen_level", pollenLevel);
+      sensorPoint.addField("calc_co2_quality", co2Quality);
 
       if (weather.data().valid)
       {
