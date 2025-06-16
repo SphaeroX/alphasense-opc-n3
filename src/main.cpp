@@ -22,10 +22,6 @@ const int OPC_SS_PIN = 5;
 // mechanism is non-blocking so the MCU can perform other tasks.
 const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
 
-// The OPC-N3 sampling period should match the sleep duration so that each
-// reading contains data collected during the entire wait time.
-float samplingPeriod = measurementSleepMs / 1000.0f;
-
 // --- Global Objects ---
 OpcN3 opc(OPC_SS_PIN);
 SensirionI2cScd4x scd4x;
@@ -108,7 +104,6 @@ void setup()
   scd4x.startPeriodicMeasurement();
 
   // Initialize the OPC-N3 sensor
-  // This now includes setting the default sampling period to 1 second
   if (!opc.begin())
   {
     Serial.println("FATAL: OPC-N3 initialization failed. Program halted.");
@@ -116,10 +111,6 @@ void setup()
       ; // Halt execution
   }
 
-  if (!opc.setSamplingPeriod(samplingPeriod))
-  {
-    Serial.println("Warning: Failed to set custom sampling period");
-  }
 }
 
 void loop()
