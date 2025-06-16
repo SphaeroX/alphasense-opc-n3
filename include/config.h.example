@@ -20,4 +20,8 @@
 // 60 second interval.
 #define SENSOR_SLEEP_MS 10000
 
+// Location for weather API queries
+#define WEATHER_LATITUDE 52.52
+#define WEATHER_LONGITUDE 13.41
+
 #endif // CONFIG_H
