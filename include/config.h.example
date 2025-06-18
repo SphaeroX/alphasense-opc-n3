@@ -24,4 +24,7 @@
 #define WEATHER_LATITUDE 52.52
 #define WEATHER_LONGITUDE 13.41
 
+// Interval for updating weather and air quality data asynchronously
+#define WEATHER_UPDATE_INTERVAL_MS 60000
+
 #endif // CONFIG_H
