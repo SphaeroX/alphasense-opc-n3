@@ -2,6 +2,7 @@
 #define OPEN_METEO_CLIENT_H
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 struct OpenMeteoData {
     float temperature_c;
@@ -32,16 +33,22 @@ struct OpenMeteoData {
 
 class OpenMeteoClient {
 public:
-    OpenMeteoClient(float latitude, float longitude);
+    explicit OpenMeteoClient(float latitude, float longitude,
+                             uint32_t intervalMs = 600000);
     bool update();
     const OpenMeteoData &data() const { return _data; }
 
 private:
+    static constexpr uint32_t HTTP_TIMEOUT_MS = 10000; // 10s timeout
+    static constexpr uint8_t MAX_RETRIES = 3;
     float _latitude;
     float _longitude;
+    uint32_t _minUpdateInterval;
+    unsigned long _lastUpdateMs;
     OpenMeteoData _data;
     bool fetchCurrent();
     bool fetchAirQuality();
+    bool fetchJson(const String &url, JsonDocument &doc);
 };
 
 #endif // OPEN_METEO_CLIENT_H

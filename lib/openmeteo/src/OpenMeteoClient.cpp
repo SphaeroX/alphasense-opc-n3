@@ -3,8 +3,10 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
-OpenMeteoClient::OpenMeteoClient(float latitude, float longitude)
-    : _latitude(latitude), _longitude(longitude)
+OpenMeteoClient::OpenMeteoClient(float latitude, float longitude,
+                                 uint32_t intervalMs)
+    : _latitude(latitude), _longitude(longitude),
+      _minUpdateInterval(intervalMs), _lastUpdateMs(0)
 {
     memset(&_data, 0, sizeof(_data));
     _data.valid = false;
@@ -12,6 +14,13 @@ OpenMeteoClient::OpenMeteoClient(float latitude, float longitude)
 
 bool OpenMeteoClient::update()
 {
+    unsigned long now = millis();
+    if (_lastUpdateMs != 0 && now - _lastUpdateMs < _minUpdateInterval)
+    {
+        return _data.valid;
+    }
+    _lastUpdateMs = now;
+
     bool weatherOk = fetchCurrent();
     bool airOk = fetchAirQuality();
     _data.valid = weatherOk || airOk;
@@ -20,24 +29,13 @@ bool OpenMeteoClient::update()
 
 bool OpenMeteoClient::fetchCurrent()
 {
-    HTTPClient http;
     String url = String("https://api.open-meteo.com/v1/forecast?latitude=") + String(_latitude, 4) +
                  "&longitude=" + String(_longitude, 4) +
                  "&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,rain,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=Europe%2FBerlin";
     Serial.print("Fetching weather from: ");
     Serial.println(url);
-    http.begin(url);
-    int code = http.GET();
-    if (code != HTTP_CODE_OK)
-    {
-        http.end();
-        return false;
-    }
     JsonDocument doc;
-    DeserializationError err = deserializeJson(doc, http.getString());
-    http.end();
-    if (err)
-    {
+    if (!fetchJson(url, doc)) {
         return false;
     }
     JsonObject current = doc["current"];
@@ -57,24 +55,13 @@ bool OpenMeteoClient::fetchCurrent()
 
 bool OpenMeteoClient::fetchAirQuality()
 {
-    HTTPClient http;
     String url = String("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=") + String(_latitude, 4) +
                  "&longitude=" + String(_longitude, 4) +
                  "&current=ragweed_pollen,olive_pollen,mugwort_pollen,grass_pollen,birch_pollen,alder_pollen,dust,carbon_monoxide,pm2_5,pm10,european_aqi&timezone=Europe%2FBerlin";
     Serial.print("Fetching air quality from: ");
     Serial.println(url);
-    http.begin(url);
-    int code = http.GET();
-    if (code != HTTP_CODE_OK)
-    {
-        http.end();
-        return false;
-    }
     JsonDocument doc;
-    DeserializationError err = deserializeJson(doc, http.getString());
-    http.end();
-    if (err)
-    {
+    if (!fetchJson(url, doc)) {
         return false;
     }
     JsonObject current = doc["current"];
@@ -90,5 +77,29 @@ bool OpenMeteoClient::fetchAirQuality()
     _data.pm10_ug_m3 = current["pm10"].as<float>();
     _data.european_aqi = current["european_aqi"].as<float>();
     return true;
+}
+
+bool OpenMeteoClient::fetchJson(const String &url, JsonDocument &doc)
+{
+    HTTPClient http;
+    for (uint8_t attempt = 0; attempt < MAX_RETRIES; ++attempt)
+    {
+        http.begin(url);
+        http.setConnectTimeout(HTTP_TIMEOUT_MS);
+        http.setTimeout(HTTP_TIMEOUT_MS);
+        int code = http.GET();
+        if (code == HTTP_CODE_OK)
+        {
+            DeserializationError err = deserializeJson(doc, http.getString());
+            http.end();
+            if (!err)
+            {
+                return true;
+            }
+        }
+        http.end();
+        delay(500);
+    }
+    return false;
 }
 

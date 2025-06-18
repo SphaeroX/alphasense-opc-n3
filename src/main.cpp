@@ -29,7 +29,7 @@ const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
 OpcN3 opc(OPC_SS_PIN);
 SensirionI2cScd4x scd4x;
 const int MAX_CONSECUTIVE_FAILURES = 5;
-OpenMeteoClient openMeteo(WEATHER_LATITUDE, WEATHER_LONGITUDE);
+OpenMeteoClient openMeteo(WEATHER_LATITUDE, WEATHER_LONGITUDE, WEATHER_UPDATE_INTERVAL_MS);
 OpenMeteoData latestWeatherData{};
 TaskHandle_t weatherTaskHandle = nullptr;
 
@@ -88,6 +88,11 @@ void setup()
   // Synchronize time for accurate timestamps
   timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
   waitForTimeSync();
+
+  // Fetch initial weather data
+  if (openMeteo.update()) {
+    latestWeatherData = openMeteo.data();
+  }
 
   // Start asynchronous weather updates
   xTaskCreatePinnedToCore(weatherTask, "WeatherTask", 8192, nullptr, 1, &weatherTaskHandle, 1);
