@@ -23,5 +23,6 @@
 // Location for weather API queries
 #define WEATHER_LATITUDE 52.52
 #define WEATHER_LONGITUDE 13.41
+#define WEATHER_UPDATE_INTERVAL_MS 600000 // Every 10 minutes
 
 #endif // CONFIG_H
