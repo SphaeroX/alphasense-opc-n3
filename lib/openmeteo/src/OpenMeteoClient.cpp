@@ -15,7 +15,7 @@ OpenMeteoClient::OpenMeteoClient(float latitude, float longitude,
 bool OpenMeteoClient::update()
 {
     unsigned long now = millis();
-    if (now - _lastUpdateMs < _minUpdateInterval)
+    if (_lastUpdateMs != 0 && now - _lastUpdateMs < _minUpdateInterval)
     {
         return _data.valid;
     }

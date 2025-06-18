@@ -89,6 +89,11 @@ void setup()
   timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
   waitForTimeSync();
 
+  // Fetch initial weather data
+  if (openMeteo.update()) {
+    latestWeatherData = openMeteo.data();
+  }
+
   // Start asynchronous weather updates
   xTaskCreatePinnedToCore(weatherTask, "WeatherTask", 8192, nullptr, 1, &weatherTaskHandle, 1);
 
