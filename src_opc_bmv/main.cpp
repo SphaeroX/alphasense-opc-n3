@@ -89,14 +89,6 @@ void setup()
         Serial.println(client.getLastErrorMessage());
     }
 
-    SPI.begin(OPC_SCK_PIN, OPC_MISO_PIN, OPC_MOSI_PIN, OPC_SS_PIN);
-    if (!opc.begin())
-    {
-        Serial.println("FATAL: OPC-N3 initialization failed.");
-        while (1)
-            ;
-    }
-
     Wire.begin();
     Wire.setClock(1000000); // use Fast Plus mode if available
 
@@ -118,6 +110,15 @@ void setup()
     bmv.reset();
     delay(50);
     bmv.startContinuous();
+    delay(2000); // allow sensor to produce first sample
+
+    SPI.begin(OPC_SCK_PIN, OPC_MISO_PIN, OPC_MOSI_PIN, OPC_SS_PIN);
+    if (!opc.begin())
+    {
+        Serial.println("FATAL: OPC-N3 initialization failed.");
+        while (1)
+            ;
+    }
 }
 
 void loop()
