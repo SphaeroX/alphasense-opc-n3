@@ -25,7 +25,7 @@ BMV080 bmv;
 #define DEVICE "ARDUINO"
 #endif
 
-InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET_COMPARE, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
+InfluxDBClient client(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
 Point sensorPoint("opc_bmv");
 
 static void waitForTimeSync()
