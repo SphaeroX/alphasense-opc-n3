@@ -44,6 +44,7 @@ Getting started with this library is straightforward:
    - `full` builds the OPC-N3 and SCD41 firmware located in `src/`.
    - `scd41_only` builds the CO₂-only firmware found in `src_co2/`.
    - `opcn3_only` builds only the OPC-N3 firmware in `src_opc_only/`.
+   - `opc_bmv080` builds the OPC-N3 and BMV080 firmware in `src_bmv080/`.
    - `calibrate_scd41` performs a manual SCD41 calibration and then continues
      sending measurements to InfluxDB (code in `src_calibrate/`).
 4. Flash the code to your ESP32
@@ -51,6 +52,7 @@ Getting started with this library is straightforward:
     - Automatically connect to your WiFi network
     - Initialize the OPC-N3 sensor (not used in the `co2only` build)
     - Initialize the SCD41 sensor and start periodic measurements (not used in the `opconly` build)
+    - Initialize the BMV080 sensor (only in the `opc_bmv080` build)
     - Start continuous measurements
     - Push all data directly to your InfluxDB instance
 
