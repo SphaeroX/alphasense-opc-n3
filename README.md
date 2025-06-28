@@ -46,6 +46,8 @@ Getting started with this library is straightforward:
    - `opcn3_only` builds only the OPC-N3 firmware in `src_opc_only/`.
    - `calibrate_scd41` performs a manual SCD41 calibration and then continues
      sending measurements to InfluxDB (code in `src_calibrate/`).
+   - `opc_bmv` builds firmware that reads the OPC-N3 and BMV080 sensors for
+     side-by-side comparison (code in `src_opc_bmv/`).
 4. Flash the code to your ESP32
 5. The device will:
     - Automatically connect to your WiFi network
