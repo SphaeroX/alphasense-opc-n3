@@ -9,6 +9,19 @@
 #include "config.h"
 #include <time.h>
 
+static uint8_t detectBmv080Address()
+{
+    for (uint8_t addr = 0x54; addr <= 0x57; ++addr)
+    {
+        Wire.beginTransmission(addr);
+        if (Wire.endTransmission() == 0)
+        {
+            return addr;
+        }
+    }
+    return 0xFF; // not found
+}
+
 const int OPC_MOSI_PIN = 23;
 const int OPC_MISO_PIN = 19;
 const int OPC_SCK_PIN = 18;
@@ -85,12 +98,25 @@ void setup()
     }
 
     Wire.begin();
+    Wire.setClock(1000000); // use Fast Plus mode if available
+
+    uint8_t bmvAddr = detectBmv080Address();
+    if (bmvAddr == 0xFF)
+    {
+        Serial.println("FATAL: BMV080 not detected on I2C bus.");
+        while (1)
+            ;
+    }
+
+    bmv = BMV080(bmvAddr);
     if (!bmv.begin(Wire))
     {
         Serial.println("FATAL: BMV080 initialization failed.");
         while (1)
             ;
     }
+    bmv.reset();
+    delay(50);
     bmv.startContinuous();
 }
 
