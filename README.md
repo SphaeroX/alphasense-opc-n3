@@ -44,6 +44,7 @@ Getting started with this library is straightforward:
    - `full` builds the OPC-N3 and SCD41 firmware located in `src/`.
    - `scd41_only` builds the CO₂-only firmware found in `src_co2/`.
    - `opcn3_only` builds only the OPC-N3 firmware in `src_opc_only/`.
+   - `bmv080_only` builds only the BMV080 firmware located in `src_bmv080/`.
    - `calibrate_scd41` performs a manual SCD41 calibration and then continues
      sending measurements to InfluxDB (code in `src_calibrate/`).
 4. Flash the code to your ESP32
