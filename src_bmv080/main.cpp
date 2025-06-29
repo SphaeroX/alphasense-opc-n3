@@ -98,7 +98,18 @@ void loop()
     }
     lastMeasurementMs = now;
 
-    if (bmv080.readSensor())
+    bool success = false;
+    for (int i = 0; i < 20; ++i)
+    {
+        if (bmv080.readSensor())
+        {
+            success = true;
+            break;
+        }
+        delay(100); // allow sensor to update
+    }
+
+    if (success)
     {
         float pm1 = bmv080.PM1();
         float pm25 = bmv080.PM25();
