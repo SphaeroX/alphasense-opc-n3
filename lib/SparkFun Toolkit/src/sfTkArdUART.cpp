@@ -274,8 +274,11 @@ bool sfTkArdUART::find(CONSTVAR uint8_t *target)
 {
     if (!_hwSerial)
         return false;
-
+#ifdef ARDUINO_ARCH_ESP32
+    return _hwSerial->find(reinterpret_cast<const char *>(target));
+#else
     return _hwSerial->find(target);
+#endif
 }
 
 bool sfTkArdUART::find(CONSTVAR char *target, size_t length)
@@ -290,8 +293,11 @@ bool sfTkArdUART::find(CONSTVAR uint8_t *target, size_t length)
 {
     if (!_hwSerial)
         return false;
-
+#ifdef ARDUINO_ARCH_ESP32
+    return _hwSerial->find(reinterpret_cast<const char *>(target), length);
+#else
     return _hwSerial->find(target, length);
+#endif
 }
 
 bool sfTkArdUART::find(char target)
@@ -314,8 +320,11 @@ bool sfTkArdUART::findUntil(CONSTVAR uint8_t *target, CONSTVAR char *terminator)
 {
     if (!_hwSerial)
         return false;
-
+#ifdef ARDUINO_ARCH_ESP32
+    return _hwSerial->findUntil(reinterpret_cast<const char *>(target), terminator);
+#else
     return _hwSerial->findUntil(target, terminator);
+#endif
 }
 
 bool sfTkArdUART::findUntil(CONSTVAR char *target, size_t targetLen, CONSTVAR char *terminate, size_t termLen)
@@ -330,8 +339,11 @@ bool sfTkArdUART::findUntil(CONSTVAR uint8_t *target, size_t targetLen, CONSTVAR
 {
     if (!_hwSerial)
         return false;
-
+#ifdef ARDUINO_ARCH_ESP32
+    return _hwSerial->findUntil(reinterpret_cast<const char *>(target), targetLen, terminate, termLen);
+#else
     return _hwSerial->findUntil(target, targetLen, terminate, termLen);
+#endif
 }
 
 #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
