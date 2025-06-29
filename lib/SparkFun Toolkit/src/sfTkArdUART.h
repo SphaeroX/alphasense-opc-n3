@@ -259,7 +259,7 @@ class sfTkArdUART : public sfTkIUART
     bool findUntil(CONSTVAR char *target, size_t targetLen, CONSTVAR char *terminate, size_t termLen);
     bool findUntil(CONSTVAR uint8_t *target, size_t targetLen, CONSTVAR char *terminate, size_t termLen);
 
-#ifdef ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
     long parseInt();
     float parseFloat();
 #else

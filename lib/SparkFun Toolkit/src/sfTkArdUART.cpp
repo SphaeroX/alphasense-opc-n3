@@ -193,7 +193,7 @@ sfTkError_t sfTkArdUART::_start(void)
     if (_running)
         end(); // close the port if already running
     // set the config
-#ifdef ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
     // ESP8266 does not support setting stop bits, parity, and data bits in a stanard manner.
     _hwSerial->begin(_config.baudRate);
 #else
@@ -334,7 +334,7 @@ bool sfTkArdUART::findUntil(CONSTVAR uint8_t *target, size_t targetLen, CONSTVAR
     return _hwSerial->findUntil(target, targetLen, terminate, termLen);
 }
 
-#ifdef ARDUINO_ARCH_ESP8266
+#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
 long sfTkArdUART::parseInt()
 {
     if (!_hwSerial)
