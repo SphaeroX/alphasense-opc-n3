@@ -11,6 +11,40 @@ const unsigned long measurementSleepMs = SENSOR_SLEEP_MS;
 
 SparkFunBMV080 bmv080;
 
+// Attempt to reconnect the BMV080 sensor over I2C
+static bool reconnectBmv080()
+{
+    Serial.println("Attempting BMV080 reconnect...");
+
+    // Close current connection if possible
+    bmv080.close();
+    Wire.end();
+    delay(10); // short pause before reinitializing
+
+    // Reinitialize I2C and sensor
+    Wire.begin();
+    if (!bmv080.begin(SF_BMV080_DEFAULT_ADDRESS, Wire))
+    {
+        Serial.println("BMV080 begin() failed during reconnect");
+        return false;
+    }
+
+    if (!bmv080.init())
+    {
+        Serial.println("BMV080 init() failed during reconnect");
+        return false;
+    }
+
+    if (!bmv080.setMode(SF_BMV080_MODE_CONTINUOUS))
+    {
+        Serial.println("BMV080 setMode() failed during reconnect");
+        return false;
+    }
+
+    Serial.println("BMV080 reconnected successfully");
+    return true;
+}
+
 #if defined(ESP32)
 #define DEVICE "ESP32"
 #else
@@ -145,6 +179,7 @@ void loop()
     else
     {
         Serial.println("Error reading BMV080 measurement");
+        reconnectBmv080();
     }
 }
 
